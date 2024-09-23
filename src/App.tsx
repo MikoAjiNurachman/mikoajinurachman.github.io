@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import "./App.css";
 import { cn } from "./lib/utils";
 import Navbar from "./presentation/components/Navbar";
