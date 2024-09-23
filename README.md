@@ -45,7 +45,7 @@ Fullstack Developer thats familliar in Golang, Reactjs, and Kotlin Jetpack Compo
 
 ## 📫 How to Reach Me
 
-* [[Link to your LinkedIn profile]](https://www.linkedin.com/in/miko-aji-nurachman-653bb2201?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)
+* [[LinkedIn]](https://www.linkedin.com/in/miko-aji-nurachman-653bb2201?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)
 * [Link to your online portfolio (if you have one)]
 * Email: mikoajin14@gmail.com
 
