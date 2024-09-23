@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "homepage": "https://mikoajinurachman.github.io/",
+  "homepage": "https://mikoajinurachman.github.io/web-profile",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
