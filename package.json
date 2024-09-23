@@ -1,16 +1,16 @@
 {
   "name": "web-profile",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
-  "homepage": "https://MikoAjiNurachman.github.io/web-profile",
+  "homepage": "https://mikoajinurachman.github.io/",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.0",
