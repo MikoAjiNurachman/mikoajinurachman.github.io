@@ -4,7 +4,7 @@ import ErrorPage from "./error-page";
 
 const router = createBrowserRouter([
     {
-        path: "/",
+        path: "/web-profile",
         element: <App/>,
         errorElement: <ErrorPage/>
     },
