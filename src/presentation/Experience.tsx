@@ -27,7 +27,7 @@ export default function Experience() {
               WebSocket, and K8s.
             </p>
           </span>
-          <img src="src/assets/nexsoft-logo.png" className="w-1/3 h-1/3" alt="" />
+          <img src="/assets/nexsoft-logo.png" className="w-1/3 h-1/3" alt="" />
         </li>
       </ul>
     </div>

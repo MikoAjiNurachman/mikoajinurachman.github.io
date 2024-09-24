@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import "./App.css";
 import { cn } from "./lib/utils";
 import Navbar from "./presentation/components/Navbar";
@@ -12,20 +11,20 @@ import Project from "./presentation/Project";
 
 function App() {
 
-  useEffect(() =>{
-
-  },[location])
-
   return (
-    <div className={cn('w-full h-full flex flex-col gap-16')}>
+    <div
+      className={cn(
+        "w-full h-full flex flex-col gap-16 overflow-y-auto"
+      )}
+    >
       <Navbar />
-      <Main/>
-      <Section/>
-      <Experience/>
-      <Skill/>
-      <Cert/>
-      <Project/>
-      <Contact/>
+      <Main />
+      <Section />
+      <Experience />
+      <Skill />
+      <Cert />
+      <Project />
+      <Contact />
     </div>
   );
 }

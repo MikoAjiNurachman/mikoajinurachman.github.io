@@ -13,17 +13,17 @@ export default function Skill() {
         Skills
       </h2>
       <div ref={ref} className="w-5/6 flex gap-8 items-center flex-wrap transition-opacity duration-1000">
-        <ImageTooltip src="src/assets/golang-logo.png" tooltip="Golang"/>
-        <ImageTooltip src="src/assets/docker-logo.png" tooltip="Docker"/>
-        <ImageTooltip src="src/assets/postgres-logo.png" tooltip="Postgres"/>
-        <ImageTooltip src="src/assets/elastic-logo.png" tooltip="Elastic"/>
-        <ImageTooltip src="src/assets/redis.png" tooltip="Redis"/>
-        <ImageTooltip className="bg-slate-200 rounded-full" src="src/assets/git-logo.png" tooltip="Git"/>
-        <ImageTooltip src="src/assets/html-logo.png" tooltip="HTML"/>
-        <ImageTooltip src="src/assets/js-logo.png" tooltip="JS"/>
-        <ImageTooltip src="src/assets/css-logo.png" tooltip="CSS"/>
-        <ImageTooltip src="src/assets/react-logo.png" tooltip="React"/>
-        <ImageTooltip src="src/assets/kubernetes-logo.png" tooltip="Kubernetes"/>
+        <ImageTooltip src="/assets/golang-logo.png" tooltip="Golang"/>
+        <ImageTooltip src="/assets/docker-logo.png" tooltip="Docker"/>
+        <ImageTooltip src="/assets/postgres-logo.png" tooltip="Postgres"/>
+        <ImageTooltip src="/assets/elastic-logo.png" tooltip="Elastic"/>
+        <ImageTooltip src="/assets/redis.png" tooltip="Redis"/>
+        <ImageTooltip className="bg-slate-200 rounded-full" src="/assets/git-logo.png" tooltip="Git"/>
+        <ImageTooltip src="/assets/html-logo.png" tooltip="HTML"/>
+        <ImageTooltip src="/assets/js-logo.png" tooltip="JS"/>
+        <ImageTooltip src="/assets/css-logo.png" tooltip="CSS"/>
+        <ImageTooltip src="/assets/react-logo.png" tooltip="React"/>
+        <ImageTooltip src="/assets/kubernetes-logo.png" tooltip="Kubernetes"/>
       </div>
     </div>
   );
