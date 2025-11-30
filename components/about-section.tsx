@@ -47,35 +47,41 @@ export function AboutSection() {
             <div className="space-y-3 sm:space-y-4 text-muted-foreground leading-relaxed text-sm sm:text-base">
               <p>
                 I am a seasoned Software Engineer with over{" "}
-                <span className="text-foreground font-semibold">4 years of experience</span> in developing robust
-                software solutions. My expertise spans across a diverse range of technologies, including{" "}
-                <span className="text-primary font-semibold">Go (Golang)</span>,{" "}
+                <span className="text-foreground font-semibold">6+ years of experience</span> specializing in{" "}
+                <span className="text-primary font-semibold">banking and financial technology</span>. My journey spans
+                from building fraud detection systems to developing enterprise middleware solutions for core banking
+                integration.
+              </p>
+
+              <p>
+                My expertise includes <span className="text-primary font-semibold">Go (Golang)</span>,{" "}
                 <span className="text-primary font-semibold">React.js</span>, and{" "}
-                <span className="text-primary font-semibold">Docker</span>.
+                <span className="text-primary font-semibold">IBM Integration Products</span> (MQ, ACE). I have hands-on
+                experience building middleware applications that bridge frontend microservices to backend core banking
+                systems using <span className="text-foreground font-semibold">TCP/IP and HTTP protocols</span>.
               </p>
 
               <p>
-                I am also well-versed in container orchestration tools such as{" "}
-                <span className="text-primary font-semibold">Kubernetes</span>, which allows me to build scalable and
-                efficient applications.
-              </p>
-
-              <p>
-                My technical skill set includes working with{" "}
-                <span className="text-foreground font-semibold">Redis, Elasticsearch, and RabbitMQ</span> to enhance
-                system performance and reliability. Additionally, I have a strong background in using PostgreSQL for
-                database management and developing Android applications with Kotlin and Jetpack Compose.
+                I am well-versed in container orchestration with{" "}
+                <span className="text-primary font-semibold">Docker & Kubernetes</span>, and have deep knowledge in{" "}
+                <span className="text-foreground font-semibold">Redis, Elasticsearch, RabbitMQ, and PostgreSQL</span>{" "}
+                for building high-performance, scalable systems. My background in fraud filtering systems has given me
+                strong analytical skills in identifying and preventing fraudulent transactions.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
+            <div className="grid grid-cols-3 gap-3 sm:gap-6 mt-6 sm:mt-8">
               <div className="p-3 sm:p-4 rounded-lg bg-card border border-border">
-                <div className="text-2xl sm:text-3xl font-bold text-primary">4+</div>
+                <div className="text-2xl sm:text-3xl font-bold text-primary">6+</div>
                 <div className="text-xs sm:text-sm text-muted-foreground">Years Experience</div>
               </div>
               <div className="p-3 sm:p-4 rounded-lg bg-card border border-border">
+                <div className="text-2xl sm:text-3xl font-bold text-primary">3</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Companies</div>
+              </div>
+              <div className="p-3 sm:p-4 rounded-lg bg-card border border-border">
                 <div className="text-2xl sm:text-3xl font-bold text-primary">10+</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Projects Completed</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Projects</div>
               </div>
             </div>
           </div>

@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { Canvas } from "@react-three/fiber"
 import { Float, Torus, MeshDistortMaterial } from "@react-three/drei"
-import { Mail, MapPin, Send, Github, Linkedin } from "lucide-react"
+import { Mail, MapPin, Send, Github, Linkedin, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -34,11 +34,52 @@ export function ContactSection() {
     email: "",
     message: "",
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
+  const [statusMessage, setStatusMessage] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission
-    console.log(formData)
+    setIsSubmitting(true)
+    setSubmitStatus("idle")
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: "88e66dea-d0b4-4055-a1ee-7d699379ca7c",
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          subject: `Portfolio Contact: Message from ${formData.name}`,
+          from_name: "Portfolio Website",
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setSubmitStatus("success")
+        setStatusMessage("Message sent successfully! I'll get back to you soon.")
+        setFormData({ name: "", email: "", message: "" })
+      } else {
+        throw new Error(result.message || "Failed to send message")
+      }
+    } catch (error) {
+      setSubmitStatus("error")
+      setStatusMessage("Failed to send message. Please try again or email me directly.")
+      console.error("Form submission error:", error)
+    } finally {
+      setIsSubmitting(false)
+      setTimeout(() => {
+        setSubmitStatus("idle")
+        setStatusMessage("")
+      }, 5000)
+    }
   }
 
   return (
@@ -70,7 +111,7 @@ export function ContactSection() {
             {/* Contact Info */}
             <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6">
               <a
-                href="mailto:mikoaji@example.com"
+                href="mailto:mikoajinurachman@gmail.com"
                 className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors"
               >
                 <div className="p-2.5 sm:p-3 rounded-lg bg-primary/10">
@@ -78,7 +119,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Email</p>
-                  <p className="text-foreground text-sm sm:text-base">mikoaji@example.com</p>
+                  <p className="text-foreground text-sm sm:text-base">mikoajinurachman@gmail.com</p>
                 </div>
               </a>
 
@@ -93,6 +134,24 @@ export function ContactSection() {
               </div>
             </div>
 
+            {/* Status Message Display */}
+            {submitStatus !== "idle" && (
+              <div
+                className={`flex items-center gap-3 p-4 rounded-lg border ${
+                  submitStatus === "success"
+                    ? "bg-green-500/10 border-green-500/30 text-green-400"
+                    : "bg-red-500/10 border-red-500/30 text-red-400"
+                }`}
+              >
+                {submitStatus === "success" ? (
+                  <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                ) : (
+                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                )}
+                <p className="text-sm">{statusMessage}</p>
+              </div>
+            )}
+
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
@@ -101,6 +160,8 @@ export function ContactSection() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="bg-secondary border-border focus:border-primary text-sm sm:text-base"
+                  required
+                  disabled={isSubmitting}
                 />
                 <Input
                   type="email"
@@ -108,6 +169,8 @@ export function ContactSection() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="bg-secondary border-border focus:border-primary text-sm sm:text-base"
+                  required
+                  disabled={isSubmitting}
                 />
               </div>
               <Textarea
@@ -116,10 +179,26 @@ export function ContactSection() {
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 className="bg-secondary border-border focus:border-primary resize-none text-sm sm:text-base"
+                required
+                disabled={isSubmitting}
               />
-              <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                <Send className="w-4 h-4 mr-2" />
-                Send Message
+              {/* Updated Button with Loading State */}
+              <Button
+                type="submit"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Send Message
+                  </>
+                )}
               </Button>
             </form>
 
@@ -127,7 +206,7 @@ export function ContactSection() {
             <div className="flex items-center gap-3 sm:gap-4 pt-2 sm:pt-4">
               <span className="text-xs sm:text-sm text-muted-foreground">Find me on:</span>
               <a
-                href="https://github.com/mikoajinurachman"
+                href="https://github.com/MikoAjiNurachman"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg bg-secondary hover:bg-primary hover:text-primary-foreground transition-all"
@@ -136,7 +215,7 @@ export function ContactSection() {
                 <Github className="w-4 h-4 sm:w-5 sm:h-5" />
               </a>
               <a
-                href="https://linkedin.com/in/mikoajinurachman"
+                href="https://linkedin.com/in/miko-nurachman-9927a4369"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg bg-secondary hover:bg-primary hover:text-primary-foreground transition-all"

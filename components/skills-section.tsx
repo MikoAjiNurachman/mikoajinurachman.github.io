@@ -12,7 +12,8 @@ const skills = {
     { name: "JavaScript", level: 85, icon: "JS" },
     { name: "TypeScript", level: 85, icon: "TS" },
     { name: "Kotlin", level: 70, icon: "K" },
-    { name: "SQL", level: 80, icon: "DB" },
+    { name: "SQL", level: 85, icon: "DB" },
+    { name: "Java", level: 75, icon: "☕" },
   ],
   Frontend: [
     { name: "React", level: 90, icon: "⚛️" },
@@ -27,6 +28,19 @@ const skills = {
     { name: "PostgreSQL", level: 85, icon: "🐘" },
     { name: "Elasticsearch", level: 75, icon: "🔍" },
     { name: "RabbitMQ", level: 75, icon: "🐰" },
+  ],
+  "Middleware & Integration": [
+    { name: "IBM MQ", level: 80, icon: "📨" },
+    { name: "IBM ACE", level: 75, icon: "🔗" },
+    { name: "TCP/IP Protocol", level: 80, icon: "🌐" },
+    { name: "REST API", level: 90, icon: "🔌" },
+    { name: "Microservices", level: 85, icon: "🧩" },
+  ],
+  "Domain Knowledge": [
+    { name: "Core Banking Systems", level: 80, icon: "🏦" },
+    { name: "Fraud Detection", level: 75, icon: "🛡️" },
+    { name: "Payment Gateway", level: 80, icon: "💳" },
+    { name: "Financial Services", level: 80, icon: "📊" },
   ],
 }
 

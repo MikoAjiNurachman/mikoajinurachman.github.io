@@ -111,7 +111,7 @@ export function HeroSection() {
               <Github className="w-4 h-4 sm:w-5 sm:h-5" />
             </a>
             <a
-              href="https://linkedin.com/in/mikoajinurachman"
+              href="https://www.linkedin.com/in/miko-nurachman-9927a4369/"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2.5 sm:p-3 rounded-full bg-secondary hover:bg-primary hover:text-primary-foreground transition-all duration-300 group"
@@ -120,7 +120,7 @@ export function HeroSection() {
               <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />
             </a>
             <a
-              href="mailto:mikoaji@example.com"
+              href="mailto:mikoajin14@gmail.com"
               className="p-2.5 sm:p-3 rounded-full bg-secondary hover:bg-primary hover:text-primary-foreground transition-all duration-300 group"
               aria-label="Email"
             >
