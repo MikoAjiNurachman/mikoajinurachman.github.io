@@ -21,7 +21,7 @@ const experiences = [
   },
   {
     title: "Software Developer",
-    company: "PT. Bimasakti Industri Teknologi",
+    company: "PT. Bringin Inti Teknologi",
     companyShort: "BIT",
     location: "Indonesia",
     period: "Oct 2024 - Feb 2025",
