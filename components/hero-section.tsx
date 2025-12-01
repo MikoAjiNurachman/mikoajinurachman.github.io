@@ -20,29 +20,29 @@ function FloatingCode() {
     <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
       <Center>
         <group ref={groupRef}>
-          {/* Left bracket < */}
-          <mesh position={[-0.6, 0, 0]} rotation={[0, 0, Math.PI / 6]}>
-            <boxGeometry args={[0.08, 0.5, 0.08]} />
+          {/* Left bracket < - two bars meeting at a point on the right */}
+          <mesh position={[-0.75, 0.2, 0]} rotation={[0, 0, -Math.PI / 4]}>
+            <boxGeometry args={[0.08, 0.45, 0.08]} />
             <meshStandardMaterial color="#4fd1c5" metalness={0.8} roughness={0.2} />
           </mesh>
-          <mesh position={[-0.6, 0, 0]} rotation={[0, 0, -Math.PI / 6]}>
-            <boxGeometry args={[0.08, 0.5, 0.08]} />
-            <meshStandardMaterial color="#4fd1c5" metalness={0.8} roughness={0.2} />
-          </mesh>
-
-          {/* Slash / */}
-          <mesh position={[0, 0, 0]} rotation={[0, 0, Math.PI / 6]}>
-            <boxGeometry args={[0.08, 0.7, 0.08]} />
+          <mesh position={[-0.75, -0.2, 0]} rotation={[0, 0, Math.PI / 4]}>
+            <boxGeometry args={[0.08, 0.45, 0.08]} />
             <meshStandardMaterial color="#4fd1c5" metalness={0.8} roughness={0.2} />
           </mesh>
 
-          {/* Right bracket > */}
-          <mesh position={[0.6, 0, 0]} rotation={[0, 0, -Math.PI / 6]}>
-            <boxGeometry args={[0.08, 0.5, 0.08]} />
+          {/* Forward slash / - diagonal line in center */}
+          <mesh position={[0, 0, 0]} rotation={[0, 0, -Math.PI / 5]}>
+            <boxGeometry args={[0.08, 0.8, 0.08]} />
             <meshStandardMaterial color="#4fd1c5" metalness={0.8} roughness={0.2} />
           </mesh>
-          <mesh position={[0.6, 0, 0]} rotation={[0, 0, Math.PI / 6]}>
-            <boxGeometry args={[0.08, 0.5, 0.08]} />
+
+          {/* Right bracket > - two bars meeting at a point on the left */}
+          <mesh position={[0.75, 0.2, 0]} rotation={[0, 0, Math.PI / 4]}>
+            <boxGeometry args={[0.08, 0.45, 0.08]} />
+            <meshStandardMaterial color="#4fd1c5" metalness={0.8} roughness={0.2} />
+          </mesh>
+          <mesh position={[0.75, -0.2, 0]} rotation={[0, 0, -Math.PI / 4]}>
+            <boxGeometry args={[0.08, 0.45, 0.08]} />
             <meshStandardMaterial color="#4fd1c5" metalness={0.8} roughness={0.2} />
           </mesh>
         </group>
