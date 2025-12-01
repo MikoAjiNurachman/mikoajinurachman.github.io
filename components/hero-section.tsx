@@ -91,9 +91,9 @@ export function HeroSection() {
 
           <p className="text-primary font-mono text-xs sm:text-sm mb-2 tracking-wider">Hello, I'm</p>
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-3 sm:mb-4 text-foreground">
-            <span className="text-balance">Miko Aji</span>
+            <span className="text-primary">Miko</span><span className="text-balance">Aji</span>
             <br />
-            <span className="text-primary">Nurachman</span>
+            <span className="text-balance">Nurachman</span>
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-xl mx-auto text-pretty px-4">
             Software Engineer specializing in <span className="text-primary font-semibold">Go</span> &{" "}
