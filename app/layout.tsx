@@ -1,26 +1,33 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
-import "./globals.css"
+import "../styles/globals.css" // Changed to match local style path preference
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+})
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+})
 
 export const metadata: Metadata = {
-  title: "Miko Aji Nurachman - Software Engineer",
+  title: "MIKO AJI | Systems Architect & Middleware Engineer",
   description:
-    "Software Engineer specializing in Go, React, and Cloud Technologies. 4+ years of experience building scalable applications.",
+    "Expert Software Engineer with 6+ years experience in Banking Middleware (IBM ACE/MQ), Go (Golang), and React. Building high-performance mission-critical systems.",
   generator: "Next.js",
-  keywords: ["Software Engineer", "Golang", "React", "Kubernetes", "Docker", "Full Stack Developer"],
+  keywords: ["Systems Architect", "Middleware Engineer", "IBM ACE", "IBM MQ", "Golang", "Go Developer", "Banking Systems", "Microservices", "React"],
   authors: [{ name: "Miko Aji Nurachman" }],
   icons: {
-    icon: "/favicon.ico",
+    icon: "/favicon.svg",
     apple: "/apple-icon.png",
   },
 }
 
 export const viewport: Viewport = {
-  themeColor: "#0f172a",
+  themeColor: "#000000",
   width: "device-width",
   initialScale: 1,
 }
@@ -31,8 +38,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`font-sans antialiased`}>{children}</body>
+    <html lang="en" className="dark scroll-smooth">
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-black selection:bg-primary selection:text-primary-foreground`}>
+        {children}
+      </body>
     </html>
   )
 }

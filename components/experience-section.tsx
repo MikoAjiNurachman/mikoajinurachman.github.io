@@ -1,282 +1,152 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { Calendar, MapPin, ChevronDown } from "lucide-react"
+import { useState } from "react"
+import { Calendar, MapPin, Briefcase } from "lucide-react"
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 const experiences = [
   {
-    title: "Software Engineer",
-    company: "PT. Paramadaksa Teknologi Nusantara",
-    companyShort: "nexSOFT",
-    location: "Indonesia",
-    period: "Sep 2020 - Sep 2024",
+    title: "Middleware Developer",
+    company: "PT. Bank CIMB Niaga Tbk",
+    period: "Feb 2025 - Present",
     description: [
-      "Worked on various FMCG projects, including web applications and microservices",
-      "Utilized technologies like ReactJS, Go, Docker, Elastic, Redis, WebSocket, and K8s",
-      "Built scalable and efficient backend systems using Go and microservices architecture",
-      "Implemented CI/CD pipelines and containerization for seamless deployments",
+      "Architecting enterprise middleware solutions connecting modern digital channels to core banking mainframes.",
+      "Developing high-performance integration flows using IBM ACE (App Connect Enterprise) and MQ.",
+      "Implementing resilient TCP/IP and HTTP/REST communication protocols for financial message routing.",
+      "Ensuring 99.99% availability of the middleware layer for mission-critical banking transactions."
     ],
-    technologies: ["Go", "React", "Docker", "Kubernetes", "Redis", "Elasticsearch", "RabbitMQ"],
+    technologies: ["IBM ACE", "IBM MQ", "TCP/IP", "ESQL", "Java", "Core Banking"],
   },
   {
     title: "Software Developer",
-    company: "PT. Bringin Inti Teknologi",
-    companyShort: "BIT",
-    location: "Indonesia",
+    company: "PT. Bringin Inti Teknologi (BIT)",
     period: "Oct 2024 - Feb 2025",
     description: [
-      "Developed fraud detection and filtering application for banking transactions",
-      "Built real-time monitoring system to identify and prevent fraudulent activities",
-      "Implemented rule-based engine for transaction analysis and risk assessment",
-      "Collaborated with banking clients to understand fraud patterns and improve detection accuracy",
+      "Engineered a real-time Fraud Detection System to filter and monitor suspicious banking transactions.",
+      "Built a rule-based engine for rapid risk assessment and transaction analysis across various payment gateways.",
+      "Collaborated with security teams to identify fraud patterns and implement preventive filtering logic."
     ],
-    technologies: ["Java", "SQL", "Fraud Detection", "Banking Systems", "REST API"],
+    technologies: ["Java", "SQL", "Elasticsearch", "Fraud Filtering", "Banking Systems"],
   },
-    {
-    title: "Middleware Developer",
-    company: "PT. Bank CIMB Niaga Tbk",
-    companyShort: "CIMB Niaga",
-    location: "Indonesia",
-    period: "Feb 2025 - Present",
+  {
+    title: "Software Engineer",
+    company: "PT. Paramadaksa Teknologi Nusantara (nexSOFT)",
+    period: "Sep 2020 - Sep 2024",
     description: [
-      "Developed middleware applications connecting frontend microservices (channels) to backend core banking systems",
-      "Implemented TCP and HTTP connections for seamless communication between services",
-      "Worked with IBM products (IBM Integration Bus/ACE, MQ) for enterprise integration",
-      "Ensured high availability and reliability of middleware layer for banking transactions",
+      "Led the development of scalable microservices for a large-scale FMCG distribution platform.",
+      "Optimized system performance using Redis caching and RabbitMQ message brokering.",
+      "Managed containerized deployments across Kubernetes clusters, ensuring horizontal scalability.",
+      "Built real-time data sync services using Go and WebSockets for inventory management."
     ],
-    technologies: ["IBM ACE", "IBM MQ", "TCP/IP", "HTTP", "Java", "Core Banking", "Microservices"],
+    technologies: ["Go", "React", "Docker", "Kubernetes", "Redis", "RabbitMQ", "PostgreSQL"],
   },
 ]
 
 export function ExperienceSection() {
-  const [activeStep, setActiveStep] = useState(0)
-  const [expandedCards, setExpandedCards] = useState<number[]>([0])
-  const [visibleSteps, setVisibleSteps] = useState<number[]>([])
-  const sectionRef = useRef<HTMLElement>(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Animate steps one by one with delay
-            experiences.forEach((_, index) => {
-              setTimeout(() => {
-                setVisibleSteps((prev) => (prev.includes(index) ? prev : [...prev, index]))
-              }, index * 300)
-            })
-          }
-        })
-      },
-      { threshold: 0.2 },
-    )
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [])
-
-  const toggleExpand = (index: number) => {
-    setExpandedCards((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]))
-    setActiveStep(index)
-  }
-
   return (
-    <section id="experience" ref={sectionRef} className="py-16 sm:py-20 px-4 sm:px-6 bg-card/30">
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center">
-          Work <span className="text-primary">Experience</span>
-        </h2>
-        <div className="h-1 w-20 bg-primary mb-8 sm:mb-12 rounded-full mx-auto" />
-
-        <div className="flex justify-center items-center gap-2 sm:gap-4 mb-8 sm:mb-12">
-          {experiences.map((exp, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                setActiveStep(index)
-                if (!expandedCards.includes(index)) {
-                  setExpandedCards((prev) => [...prev, index])
-                }
-                // Scroll to the card
-                document.getElementById(`exp-${index}`)?.scrollIntoView({
-                  behavior: "smooth",
-                  block: "center",
-                })
-              }}
-              className="flex items-center gap-1 sm:gap-2 group"
-            >
-              {/* Step circle */}
-              <div
-                className={cn(
-                  "w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-sm sm:text-base transition-all duration-500",
-                  activeStep === index
-                    ? "bg-primary text-primary-foreground scale-110 shadow-lg shadow-primary/50"
-                    : visibleSteps.includes(index)
-                      ? "bg-primary/20 text-primary border-2 border-primary"
-                      : "bg-muted text-muted-foreground border-2 border-border",
-                )}
-              >
-                {index + 1}
-              </div>
-              {/* Connector line */}
-              {index < experiences.length - 1 && (
-                <div
-                  className={cn(
-                    "w-8 sm:w-16 h-1 rounded-full transition-all duration-500 delay-200",
-                    visibleSteps.includes(index + 1) ? "bg-primary" : "bg-border",
-                  )}
-                />
-              )}
-            </button>
-          ))}
+    <section id="experience" className="py-24 sm:py-32 px-6 overflow-hidden">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-20">
+          <motion.h2 
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight"
+          >
+            Professional <span className="text-primary italic">Journey</span>
+          </motion.h2>
+          <div className="h-1 w-24 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
         </div>
 
-        <div className="hidden sm:flex justify-center items-start gap-4 mb-8 -mt-4">
-          {experiences.map((exp, index) => (
-            <div
-              key={index}
-              className="flex items-center gap-2"
-              style={{ width: index < experiences.length - 1 ? "calc(2.5rem + 4rem + 0.5rem)" : "2.5rem" }}
-            >
-              <span
-                className={cn(
-                  "text-xs font-medium truncate max-w-[80px] transition-colors duration-300",
-                  activeStep === index ? "text-primary" : "text-muted-foreground",
-                )}
-              >
-                {exp.companyShort}
-              </span>
-            </div>
-          ))}
-        </div>
+        <div className="relative">
+          {/* Vertical Line - Hidden on small, centered on desktop */}
+          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-gradient-to-b from-primary/50 via-secondary/20 to-transparent md:-translate-x-1/2" />
 
-        <div className="space-y-4 sm:space-y-6">
-          {experiences.map((exp, index) => (
-            <div
-              key={index}
-              id={`exp-${index}`}
-              className={cn(
-                "relative pl-6 sm:pl-8 border-l-2 transition-all duration-500",
-                activeStep === index ? "border-primary" : "border-primary/30",
-                visibleSteps.includes(index) ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8",
-              )}
-              style={{ transitionDelay: `${index * 100}ms` }}
-            >
-              {/* Timeline dot with pulse animation */}
-              <div
-                className={cn(
-                  "absolute left-[-9px] top-0 w-4 h-4 rounded-full transition-all duration-300",
-                  activeStep === index ? "bg-primary scale-125 shadow-lg shadow-primary/50" : "bg-primary/50",
-                )}
-              >
-                {activeStep === index && (
-                  <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-50" />
-                )}
-              </div>
-
-              <div
-                className={cn(
-                  "bg-card border rounded-xl overflow-hidden transition-all duration-300",
-                  activeStep === index
-                    ? "border-primary shadow-lg shadow-primary/10"
-                    : "border-border hover:border-primary/50",
-                )}
-              >
-                {/* Card header - always visible, clickable */}
-                <button
-                  onClick={() => toggleExpand(index)}
-                  className="w-full p-4 sm:p-6 text-left flex items-start justify-between gap-4"
-                >
-                  <div className="flex-1">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-1">
-                      <h3 className="text-lg sm:text-xl font-bold text-foreground">{exp.title}</h3>
-                      <span className="hidden sm:inline text-muted-foreground">at</span>
-                      <p className="text-primary font-semibold text-sm sm:text-base">{exp.company}</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span>{exp.period}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span>{exp.location}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    className={cn(
-                      "p-2 rounded-full transition-all duration-300",
-                      expandedCards.includes(index) ? "bg-primary/20 rotate-180" : "bg-muted",
-                    )}
-                  >
-                    <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                  </div>
-                </button>
-
-                {/* Card content - expandable */}
-                <div
+          <div className="space-y-12">
+            {experiences.map((exp, index) => (
+              <div key={index} className="relative flex flex-col md:flex-row items-center justify-between">
+                
+                {/* Side Content Wrapping (Desktop) */}
+                <motion.div 
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
                   className={cn(
-                    "overflow-hidden transition-all duration-500 ease-in-out",
-                    expandedCards.includes(index) ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0",
+                    "w-full md:w-[45%] mb-8 md:mb-0",
+                    index % 2 === 0 ? "md:order-1 md:text-right" : "md:order-3 md:text-left md:ml-auto"
                   )}
                 >
-                  <div className="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-border/50 pt-4">
-                    <ul className="space-y-2 mb-4">
+                  <div className={cn(
+                    "group p-6 sm:p-8 rounded-[2rem] bg-secondary/20 border border-white/5 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20",
+                    index % 2 === 0 ? "md:mr-4" : "md:ml-4"
+                  )}>
+                    <div className={cn(
+                      "flex flex-col gap-2 mb-6",
+                      index % 2 === 0 ? "md:items-end" : "md:items-start"
+                    )}>
+                      <div className="flex items-center gap-2 text-primary font-mono text-[10px] tracking-[0.2em] uppercase">
+                        <Calendar className="w-3 h-3" />
+                        {exp.period}
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
+                        {exp.title}
+                      </h3>
+                      <p className="text-base font-medium text-muted-foreground">
+                        {exp.company}
+                      </p>
+                    </div>
+
+                    <ul className={cn(
+                      "space-y-3 mb-8 text-sm text-muted-foreground/80 leading-relaxed font-light",
+                      index % 2 === 0 ? "md:text-right" : "md:text-left"
+                    )}>
                       {exp.description.map((item, i) => (
-                        <li
-                          key={i}
-                          className="text-muted-foreground text-sm sm:text-base flex items-start gap-2"
-                          style={{
-                            animationDelay: `${i * 100}ms`,
-                            animation: expandedCards.includes(index) ? "fadeInUp 0.3s ease forwards" : "none",
-                            opacity: expandedCards.includes(index) ? 1 : 0,
-                          }}
-                        >
-                          <span className="text-primary mt-1 sm:mt-1.5">▹</span>
-                          <span>{item}</span>
+                        <li key={i} className="flex gap-3 md:block">
+                          <span className={cn(
+                            "text-primary font-bold md:hidden shrink-0",
+                            index % 2 === 0 ? "order-2" : "order-1"
+                          )}>▹</span>
+                          <span className="flex-1">{item}</span>
                         </li>
                       ))}
                     </ul>
 
-                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                      {exp.technologies.map((tech, i) => (
-                        <span
-                          key={tech}
-                          className="px-2 sm:px-3 py-0.5 sm:py-1 text-xs font-medium rounded-full bg-primary/10 text-primary border border-primary/20"
-                          style={{
-                            animationDelay: `${i * 50}ms`,
-                            animation: expandedCards.includes(index) ? "fadeInUp 0.3s ease forwards" : "none",
-                          }}
-                        >
+                    <div className={cn(
+                      "flex flex-wrap gap-2",
+                      index % 2 === 0 ? "md:justify-end" : "md:justify-start"
+                    )}>
+                      {exp.technologies.map((tech) => (
+                        <span key={tech} className="px-3 py-1 text-[9px] font-bold uppercase tracking-widest bg-primary/5 text-primary rounded-full border border-primary/10">
                           {tech}
                         </span>
                       ))}
                     </div>
                   </div>
+                </motion.div>
+
+                {/* Center Point (Dot) */}
+                <div className={cn(
+                  "absolute z-10",
+                  "left-4 md:left-1/2",
+                  "top-0 md:top-1/2",
+                  "-translate-x-1/2 -translate-y-1/2"
+                )}>
+                  <div className="w-4 h-4 rounded-full bg-background border-2 border-primary shadow-[0_0_15px_rgba(0,242,254,0.3)] flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  </div>
                 </div>
+
+                {/* Empty Side (Desktop Spacer) */}
+                <div className={cn(
+                  "hidden md:block w-[45%]",
+                  index % 2 === 0 ? "order-3" : "order-1"
+                )} />
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </section>
   )
 }
