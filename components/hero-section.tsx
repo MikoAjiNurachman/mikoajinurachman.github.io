@@ -60,7 +60,7 @@ function Scene() {
       <pointLight position={[-10, -10, -10]} color="#4facfe" intensity={1} />
       <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
       <FloatingCode />
-      <Environment files=\"/hdri/potsdamer_platz_1k.hdr\" />
+      <Environment files="/hdri/potsdamer_platz_1k.hdr" />
       <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
     </>
   )
