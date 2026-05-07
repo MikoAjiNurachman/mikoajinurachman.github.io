@@ -272,61 +272,32 @@ function GltfCharacter({
     applyVrmPose(vrm, pose)
     vrm.update(0)
 
-    // ── DEBUG: dump which humanoid bones the model has mapped ──
-    // Helps diagnose pose issues when arm/leg/finger rotations don't take.
-    // Remove once the pose is dialed in.
-    if (typeof window !== "undefined") {
-      const bones: Array<Parameters<NonNullable<VRM["humanoid"]>["getNormalizedBoneNode"]>[0]> = [
-        "hips", "spine", "chest", "neck", "head",
-        "leftShoulder", "leftUpperArm", "leftLowerArm", "leftHand",
-        "rightShoulder", "rightUpperArm", "rightLowerArm", "rightHand",
-        "leftUpperLeg", "leftLowerLeg", "leftFoot",
-        "rightUpperLeg", "rightLowerLeg", "rightFoot",
-      ]
-      const present: string[] = []
-      const missing: string[] = []
-      for (const name of bones) {
-        const node = vrm.humanoid?.getNormalizedBoneNode(name)
-        if (node) present.push(name)
-        else missing.push(name)
-      }
-      // eslint-disable-next-line no-console
-      console.log(
-        `[VRM ${url}]\n  metaVersion: ${vrm.meta?.metaVersion}\n  present (${present.length}): ${present.join(", ")}\n  missing (${missing.length}): ${missing.join(", ") || "(none)"}`
-      )
-    }
   }, [vrm, gltf, pose, url])
 
-  // One-time: NUCLEAR — replace expressionManager.update with a no-op so
-  // nothing internal can drive morph weights. Plus dump all bone names so
-  // we can spot any non-standard mouth/jaw bone we might've missed.
+  // One-time: silence everything that can move the face — expressions,
+  // lookAt (eye tracking), and spring bone physics. Mouth morphs are
+  // already at 0; what's left that could "move" is whole-body wobble.
   useEffect(() => {
     if (!vrm) return
     const em = vrm.expressionManager
     if (em) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(em as any).autoUpdate = false
-      // Nuclear: stub out update so nothing applies expression weights.
-      // We'll keep zeroing morph influences directly in useFrame.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(em as any).update = () => {}
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lookAt = (vrm as any).lookAt
+    if (lookAt) {
+      lookAt.autoUpdate = false
+      lookAt.update = () => {}
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sbm = (vrm as any).springBoneManager
     if (sbm) sbm.autoUpdate = false
-
-    // Dump ALL bone names so we can see if there's a non-standard
-    // mouth/jaw/lip bone driving the mouth.
-    const allBones: string[] = []
-    vrm.scene.traverse((obj) => {
-      if (obj.type === "Bone") allBones.push(obj.name || "(unnamed)")
-    })
-    // eslint-disable-next-line no-console
-    console.log(`[VRM ${url}] all bones (${allBones.length}):`, allBones.join(", "))
-  }, [vrm, url])
+  }, [vrm])
 
   // Per-frame: update VRM internals + force-silence the mouth.
-  const frameCounterRef = useRef(0)
   useFrame((_, delta) => {
     if (!vrm) return
     vrm.update(delta)
@@ -374,41 +345,18 @@ function GltfCharacter({
       }
     })
 
-    // Sanity: log the SUM of morph influences on the first face mesh every
-    // 2 seconds. If this is 0 but mouth still moves visually, the motion
-    // isn't morph-driven at all (skeletal / shader / something else).
-    if (++frameCounterRef.current % 120 === 0) {
-      let mouthSum = 0
-      let mthCount = 0
-      vrm.scene.traverse((obj) => {
-        const mesh = obj as THREE.SkinnedMesh
-        const dict = mesh.morphTargetDictionary
-        const inf = mesh.morphTargetInfluences
-        if (!dict || !inf) return
-        for (const name in dict) {
-          if (/^Fcl_MTH_/i.test(name)) {
-            mouthSum += Math.abs(inf[dict[name]])
-            mthCount++
-          }
-        }
-      })
-      // eslint-disable-next-line no-console
-      console.log(
-        `[VRM] tick #${frameCounterRef.current} — Fcl_MTH_* sum across ${mthCount} morphs = ${mouthSum.toFixed(4)}`
-      )
-    }
   })
 
   // Use vrm.scene if present, otherwise the raw glTF scene
   const sceneToRender = useMemo(() => (vrm ? vrm.scene : gltf.scene), [vrm, gltf])
 
+  // Float removed for VRM characters — the wrapper bob was making the
+  // skinned face/lips wobble enough to read as "mouth moving".
   return (
     <group ref={wrapperRef} position={position} scale={scale} {...handlers}>
-      <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.4}>
-        <group ref={innerRef}>
-          <primitive object={sceneToRender} />
-        </group>
-      </Float>
+      <group ref={innerRef}>
+        <primitive object={sceneToRender} />
+      </group>
     </group>
   )
 }
