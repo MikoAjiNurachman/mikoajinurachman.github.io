@@ -47,20 +47,29 @@ export function ExperienceSection() {
     <section id="experience" className="py-28 sm:py-36 px-6 overflow-hidden relative">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass neon-border text-[10px] font-bold uppercase tracking-[0.28em] text-primary mb-5"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            Timeline / 02
+          </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-semibold mb-4 tracking-tight"
+            className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 tracking-tight"
           >
-            Professional <span className="text-gradient italic font-light">journey</span>
+            Professional <span className="text-anime italic font-light">journey</span>
           </motion.h2>
-          <div className="h-px w-32 bg-gradient-to-r from-transparent via-primary/60 to-transparent mx-auto" />
+          <div className="h-px w-32 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
         </div>
 
         <div className="relative">
-          {/* Soft vertical line */}
-          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary/40 via-accent/20 to-transparent md:-translate-x-1/2" />
+          {/* Energy vertical line */}
+          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-gradient-to-b from-primary via-accent to-tertiary/0 md:-translate-x-1/2 [box-shadow:0_0_20px_oklch(0.78_0.18_220/0.5)]" />
 
           <div className="space-y-14">
             {experiences.map((exp, index) => (
@@ -76,7 +85,7 @@ export function ExperienceSection() {
                 >
                   <div
                     className={cn(
-                      "group p-6 sm:p-8 rounded-3xl glass gradient-border hover:bg-foreground/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10",
+                      "group p-6 sm:p-8 rounded-3xl glass neon-border hover:neon-glow transition-all duration-500 hover:-translate-y-1",
                       index % 2 === 0 ? "md:mr-4" : "md:ml-4"
                     )}
                   >
@@ -90,7 +99,7 @@ export function ExperienceSection() {
                         <Calendar className="w-3 h-3" />
                         {exp.period}
                       </div>
-                      <h3 className="text-xl sm:text-2xl font-semibold text-foreground group-hover:text-gradient transition-colors">
+                      <h3 className="text-xl sm:text-2xl font-bold text-foreground group-hover:text-anime transition-colors">
                         {exp.title}
                       </h3>
                       <p className="text-sm font-medium text-foreground/70">{exp.company}</p>

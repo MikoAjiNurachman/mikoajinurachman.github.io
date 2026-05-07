@@ -64,7 +64,7 @@ export function ProjectsSection() {
               viewport={{ once: true }}
               className="text-4xl sm:text-5xl lg:text-6xl font-semibold mb-4 tracking-tight"
             >
-              Selected <span className="text-gradient italic font-light">engineering</span> works
+              Selected <span className="text-anime italic font-light">engineering</span> works
             </motion.h2>
             <p className="text-foreground/60 lg:text-lg font-light">
               A collection of systems architecture, middleware integration, and frontend experiences
@@ -77,7 +77,7 @@ export function ProjectsSection() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass gradient-border text-primary text-sm font-medium hover:bg-primary/10 transition-colors group whitespace-nowrap"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass neon-border text-primary text-sm font-medium hover:bg-primary/10 transition-colors group whitespace-nowrap"
           >
             View All on GitHub
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -95,14 +95,14 @@ export function ProjectsSection() {
             <motion.div
               key={index}
               variants={cardVariants}
-              className="group relative glass gradient-border rounded-3xl overflow-hidden hover:bg-foreground/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10"
+              className="group relative glass neon-border rounded-3xl overflow-hidden hover:bg-foreground/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10"
             >
               {/* Hover aurora */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none bg-[radial-gradient(circle_at_30%_20%,oklch(0.80_0.14_295/0.15),transparent_60%),radial-gradient(circle_at_70%_80%,oklch(0.85_0.10_195/0.12),transparent_60%)]" />
 
               <div className="relative p-8 sm:p-10 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-8">
-                  <div className="p-3 rounded-2xl glass gradient-border group-hover:bg-primary/10 transition-colors duration-500">
+                  <div className="p-3 rounded-2xl glass neon-border group-hover:bg-primary/10 transition-colors duration-500">
                     <Folder className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex gap-2">
@@ -121,7 +121,7 @@ export function ProjectsSection() {
                   </div>
                 </div>
 
-                <h3 className="text-xl sm:text-2xl font-semibold mb-3 text-foreground group-hover:text-gradient transition-colors duration-300">
+                <h3 className="text-xl sm:text-2xl font-semibold mb-3 text-foreground group-hover:text-anime transition-colors duration-300">
                   {project.title}
                 </h3>
                 <p className="text-foreground/65 font-light leading-relaxed mb-8 flex-grow text-sm sm:text-base">

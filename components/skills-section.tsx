@@ -1,9 +1,9 @@
 "use client"
 
 import { Canvas, useFrame } from "@react-three/fiber"
-import { Float, OrbitControls, MeshTransmissionMaterial, Environment } from "@react-three/drei"
+import { Float, OrbitControls, Sparkles, Edges, Trail } from "@react-three/drei"
 import { Suspense, useRef } from "react"
-import type * as THREE from "three"
+import * as THREE from "three"
 import { motion } from "framer-motion"
 
 const skills = {
@@ -33,31 +33,40 @@ const skills = {
   ],
 }
 
-function GlassCore() {
-  const ref = useRef<THREE.Mesh>(null)
+function ToonTorusKnot() {
+  const inner = useRef<THREE.Mesh>(null)
+  const outline = useRef<THREE.Mesh>(null)
+
   useFrame((state) => {
-    if (!ref.current) return
-    ref.current.rotation.y = state.clock.elapsedTime * 0.3
-    ref.current.rotation.x = state.clock.elapsedTime * 0.15
+    const t = state.clock.elapsedTime
+    if (inner.current) {
+      inner.current.rotation.x = t * 0.35
+      inner.current.rotation.y = t * 0.5
+    }
+    if (outline.current) {
+      outline.current.rotation.x = t * 0.35
+      outline.current.rotation.y = t * 0.5
+    }
   })
 
   return (
-    <Float speed={1.5} rotationIntensity={0.4} floatIntensity={0.8}>
-      <mesh ref={ref} scale={1.3}>
-        <icosahedronGeometry args={[1.2, 1]} />
-        <MeshTransmissionMaterial
-          backside
-          samples={4}
-          thickness={1}
-          roughness={0.15}
-          chromaticAberration={0.05}
-          distortion={0.2}
-          temporalDistortion={0.1}
-          ior={1.35}
-          color="#d4c1ff"
-          transmission={1}
-        />
-      </mesh>
+    <Float speed={1.4} rotationIntensity={0.4} floatIntensity={0.7}>
+      <group>
+        <mesh ref={outline} scale={1.04}>
+          <torusKnotGeometry args={[0.9, 0.28, 128, 16]} />
+          <meshBasicMaterial color="#0a0a1a" side={THREE.BackSide} />
+        </mesh>
+        <mesh ref={inner}>
+          <torusKnotGeometry args={[0.9, 0.28, 128, 16]} />
+          <meshToonMaterial color="#7ad7ff" />
+          <Edges threshold={20} color="#bfe6ff" />
+        </mesh>
+        {/* Glow */}
+        <mesh scale={1.6}>
+          <sphereGeometry args={[1.1, 32, 32]} />
+          <meshBasicMaterial color="#7ad7ff" transparent opacity={0.10} depthWrite={false} />
+        </mesh>
+      </group>
     </Float>
   )
 }
@@ -67,7 +76,7 @@ function OrbitNode({
   speed,
   color,
   yOffset,
-  scale = 0.22,
+  scale = 0.18,
 }: {
   radius: number
   speed: number
@@ -85,18 +94,12 @@ function OrbitNode({
     ref.current.rotation.y = t
   })
   return (
-    <mesh ref={ref} scale={scale}>
-      <dodecahedronGeometry args={[1, 0]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={0.7}
-        metalness={0.2}
-        roughness={0.25}
-        transparent
-        opacity={0.9}
-      />
-    </mesh>
+    <Trail width={0.4} length={3} color={new THREE.Color(color)} attenuation={(t) => t * t}>
+      <mesh ref={ref} scale={scale}>
+        <octahedronGeometry args={[1, 0]} />
+        <meshToonMaterial color={color} />
+      </mesh>
+    </Trail>
   )
 }
 
@@ -104,15 +107,19 @@ function SkillsScene() {
   return (
     <>
       <ambientLight intensity={0.4} />
-      <directionalLight position={[4, 4, 4]} intensity={0.8} color="#e7d9ff" />
-      <pointLight position={[-4, -2, 3]} color="#a6e3e9" intensity={1} />
-      <pointLight position={[4, 2, -3]} color="#ffd6c2" intensity={0.8} />
-      <GlassCore />
-      <OrbitNode radius={2.6} speed={0.5} color="#c8b6ff" yOffset={0.6} />
-      <OrbitNode radius={2.6} speed={-0.6} color="#a6e3e9" yOffset={-0.5} scale={0.18} />
-      <OrbitNode radius={2.4} speed={0.4} color="#ffd6c2" yOffset={0.0} scale={0.2} />
-      <OrbitNode radius={2.8} speed={-0.3} color="#bde0fe" yOffset={-0.9} scale={0.16} />
-      <Environment preset="dawn" />
+      <directionalLight position={[5, 5, 5]} intensity={1} color="#bfe6ff" />
+      <pointLight position={[-5, -3, 4]} color="#ff6fbf" intensity={1.1} />
+      <pointLight position={[5, 3, -4]} color="#ffe27a" intensity={0.7} />
+
+      <ToonTorusKnot />
+
+      <OrbitNode radius={2.6} speed={0.55} color="#7ad7ff" yOffset={0.6} />
+      <OrbitNode radius={2.6} speed={-0.65} color="#ff6fbf" yOffset={-0.5} scale={0.16} />
+      <OrbitNode radius={2.4} speed={0.4} color="#ffe27a" yOffset={0.0} scale={0.18} />
+      <OrbitNode radius={2.8} speed={-0.3} color="#a98bff" yOffset={-0.9} scale={0.14} />
+
+      <Sparkles count={70} scale={[7, 7, 7]} size={5} speed={0.5} color="#bfe6ff" opacity={0.85} />
+
       <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.6} />
     </>
   )
@@ -121,27 +128,40 @@ function SkillsScene() {
 export function SkillsSection() {
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+    visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
   }
-
   const itemVariants = {
-    hidden: { y: 12, opacity: 0 },
-    visible: { y: 0, opacity: 1 },
+    hidden: { y: 16, opacity: 0, scale: 0.96 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      transition: { type: "spring" as const, stiffness: 220, damping: 22 },
+    },
   }
 
   return (
     <section id="skills" className="py-28 sm:py-36 px-6 relative">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass neon-border text-[10px] font-bold uppercase tracking-[0.28em] text-primary mb-5"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            Loadout / 03
+          </motion.div>
           <motion.h2
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-semibold mb-4 tracking-tight"
+            className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 tracking-tight"
           >
-            Technical <span className="text-gradient italic font-light">arsenal</span>
+            Technical <span className="text-anime italic font-light">arsenal</span>
           </motion.h2>
-          <div className="h-px w-32 bg-gradient-to-r from-transparent via-primary/60 to-transparent mx-auto" />
+          <div className="h-px w-32 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
         </div>
 
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
@@ -157,11 +177,12 @@ export function SkillsSection() {
               <motion.div
                 key={category}
                 variants={itemVariants}
-                className="p-6 rounded-3xl glass gradient-border hover:bg-foreground/5 transition-colors"
+                whileHover={{ y: -4 }}
+                className="p-6 rounded-3xl glass neon-border hover:neon-glow transition-shadow"
               >
-                <h3 className="text-xs font-bold text-primary uppercase tracking-[0.25em] mb-6 flex items-center justify-between">
+                <h3 className="text-xs font-bold text-primary uppercase tracking-[0.28em] mb-6 flex items-center justify-between">
                   {category}
-                  <span className="w-8 h-px bg-gradient-to-r from-primary/60 to-transparent" />
+                  <span className="w-8 h-px bg-gradient-to-r from-primary to-transparent" />
                 </h3>
                 <div className="flex flex-col gap-4">
                   {items.map((skill) => (
@@ -173,14 +194,25 @@ export function SkillsSection() {
                         </span>
                         <span className="text-foreground/40 font-mono">{skill.level}%</span>
                       </div>
-                      <div className="h-1.5 w-full bg-foreground/8 rounded-full overflow-hidden">
+                      <div className="relative h-1.5 w-full bg-foreground/8 rounded-full overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
                           whileInView={{ width: `${skill.level}%` }}
                           viewport={{ once: true }}
-                          transition={{ duration: 1.5, ease: "easeOut" }}
-                          className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-tertiary"
-                        />
+                          transition={{ duration: 1.4, ease: "easeOut" }}
+                          className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-tertiary relative overflow-hidden"
+                        >
+                          {/* shimmer */}
+                          <span
+                            className="absolute inset-0"
+                            style={{
+                              background:
+                                "linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent)",
+                              backgroundSize: "200% 100%",
+                              animation: "shimmer-x 2.4s linear infinite",
+                            }}
+                          />
+                        </motion.div>
                       </div>
                     </div>
                   ))}
@@ -189,19 +221,27 @@ export function SkillsSection() {
             ))}
           </motion.div>
 
-          {/* 3D Visualization */}
+          {/* 3D */}
           <motion.div
-            className="h-[400px] lg:h-full min-h-[500px] relative order-2 hidden lg:block rounded-3xl overflow-hidden glass gradient-border"
-            initial={{ opacity: 0, x: 20 }}
+            className="h-[400px] lg:h-full min-h-[500px] relative order-2 hidden lg:block rounded-3xl overflow-hidden glass neon-border scanlines"
+            initial={{ opacity: 0, x: 24 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.80_0.14_295/0.12)_0%,transparent_70%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,oklch(0.78_0.18_220/0.15)_0%,transparent_70%)]" />
             <Canvas camera={{ position: [0, 0, 6] }} dpr={[1, 1.6]}>
               <Suspense fallback={null}>
                 <SkillsScene />
               </Suspense>
             </Canvas>
+
+            {/* HUD label */}
+            <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full glass-strong neon-border text-[10px] font-mono text-primary uppercase tracking-[0.2em]">
+              ◇ stack.core
+            </div>
+            <div className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full glass-strong text-[10px] font-mono text-accent">
+              v6.0
+            </div>
           </motion.div>
         </div>
       </div>
