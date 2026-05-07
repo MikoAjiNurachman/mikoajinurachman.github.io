@@ -93,26 +93,29 @@ function HeroScene() {
           different model briefly before the VRM finishes loading. */}
       <AnimeCharacter
         model="/models/character.vrm"
-        position={[-2.8, -1.6, 0]}
+        position={[-3.6, -1.6, 0]}
         scale={0.8}
         pose="point"
         noFallback
       />
       <AnimeCharacter
         model="/models/character.vrm?n=2"
-        position={[2.8, -1.6, 0]}
+        position={[3.6, -1.6, 0]}
         scale={0.8}
         pose="pointRight"
         noFallback
       />
 
-      <EnergyRing radius={2.4} tilt={Math.PI / 2.5} speed={0.4} color="#7ad7ff" />
-      <EnergyRing radius={2.7} tilt={Math.PI / 3} speed={-0.25} color="#4facfe" thickness={0.012} />
-      <EnergyRing radius={3.0} tilt={Math.PI / 2.2} speed={0.18} color="#5b8bff" thickness={0.008} />
+      {/* Energy rings tightened so they hug the avatar — characters at x=±3.6
+          stay clear of the outermost ring (radius 2.4). */}
+      <EnergyRing radius={1.9} tilt={Math.PI / 2.5} speed={0.4} color="#7ad7ff" />
+      <EnergyRing radius={2.15} tilt={Math.PI / 3} speed={-0.25} color="#4facfe" thickness={0.012} />
+      <EnergyRing radius={2.4} tilt={Math.PI / 2.2} speed={0.18} color="#5b8bff" thickness={0.008} />
 
-      <OrbitingShard radius={2.4} speed={0.7} color="#7ad7ff" yOffset={0.1} trail />
-      <OrbitingShard radius={2.6} speed={-0.5} color="#4facfe" yOffset={-0.3} scale={0.14} />
-      <OrbitingShard radius={2.2} speed={0.6} color="#a8e6ff" yOffset={0.4} scale={0.16} />
+      {/* Orbit shards stay inside the ring zone, away from the characters */}
+      <OrbitingShard radius={1.9} speed={0.7} color="#7ad7ff" yOffset={0.1} trail />
+      <OrbitingShard radius={2.1} speed={-0.5} color="#4facfe" yOffset={-0.3} scale={0.14} />
+      <OrbitingShard radius={1.7} speed={0.6} color="#a8e6ff" yOffset={0.4} scale={0.16} />
 
       <Sparkles count={60} scale={[6, 6, 6]} size={5} speed={0.6} color="#bfe6ff" opacity={0.9} />
     </>
@@ -137,7 +140,7 @@ export function HeroSection() {
   return (
     <section
       id="home"
-      className="relative min-h-screen w-full flex items-center justify-center overflow-hidden grain pt-24 pb-16 md:pt-28 md:pb-20"
+      className="relative min-h-screen w-full flex items-center justify-center overflow-hidden grain pt-36 pb-12 md:pt-44 md:pb-16"
     >
       {/* 3D layer */}
       <div className="absolute inset-0 z-0">
