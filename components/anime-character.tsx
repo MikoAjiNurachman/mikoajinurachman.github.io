@@ -297,57 +297,76 @@ function GltfCharacter({
     }
   }, [vrm, gltf, pose, url])
 
-  // One-time: dump all expressions + animations the model has, plus disable
-  // expressionManager auto-update so internal lookAt / talk drivers can't
-  // re-set values once we zero them.
+  // One-time: silence the face manager + spring bone physics. We keep blink
+  // working by NOT zeroing it (face still alive but mouth shut). Spring bones
+  // can drive jaw/face jiggle on some VRMs — disable so face stays still.
   useEffect(() => {
     if (!vrm) return
     const em = vrm.expressionManager
     if (em) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(em as any).autoUpdate = false
-      const exprNames = em.expressions
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((e: any) => e.expressionName ?? e.name ?? "?")
-      const animNames = (gltf.animations ?? []).map((a) => a.name)
-      // eslint-disable-next-line no-console
-      console.log(
-        `[VRM ${url}] expressions:`, exprNames,
-        "\nanimations:", animNames.length ? animNames : "(none)"
-      )
     }
-  }, [vrm, gltf, url])
+    // Spring bone physics for face/hair/cloth — disable auto-update so jaw
+    // / face spring bones don't jiggle the mouth open.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sbm = (vrm as any).springBoneManager
+    if (sbm) sbm.autoUpdate = false
+  }, [vrm])
 
-  // Per-frame: update VRM internals + AGGRESSIVELY silence the face.
-  //   1. Zero out every expression in the manager (handles custom names too).
-  //   2. As a belt-and-suspenders, zero the raw morphTargetInfluences on
-  //      every SkinnedMesh — kills any morph animation playing outside the
-  //      expression system.
+  // Per-frame: update VRM internals + force-silence the mouth.
+  const frameCounterRef = useRef(0)
   useFrame((_, delta) => {
     if (!vrm) return
     vrm.update(delta)
 
     const em = vrm.expressionManager
     if (em) {
+      // Kill every mouth viseme + emotion — leave blink alone so eyes
+      // can still blink. Set BOTH via API and direct .weight, in case
+      // one path is overridden.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mouthShapes = new Set<string>([
+        "aa", "ih", "ou", "ee", "oh", "neutral",
+        "happy", "angry", "sad", "relaxed", "surprised",
+      ])
       for (const expr of em.expressions) {
-        // VRM 1.x exposes `expressionName`; VRM 0.x falls back to `name`
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const name = (expr as any).expressionName ?? (expr as any).name
-        if (name) {
-          try { em.setValue(name, 0) } catch { /* ignore missing */ }
+        const e = expr as any
+        const name = e.expressionName ?? e.name
+        if (mouthShapes.has(name)) {
+          try { em.setValue(name, 0) } catch { /* ignore */ }
+          if ("weight" in e) e.weight = 0
         }
       }
       em.update()
     }
 
-    // Nuke raw morph target influences too, in case the model has direct
-    // morph animation or sets them outside the expression system.
+    // Belt-and-suspenders: traverse meshes and zero any morph target whose
+    // name looks mouth-related (skip eye/blink morphs to keep blinking).
     vrm.scene.traverse((obj) => {
       const mesh = obj as THREE.SkinnedMesh
-      if (mesh.morphTargetInfluences && mesh.morphTargetInfluences.length) {
-        mesh.morphTargetInfluences.fill(0)
+      const dict = mesh.morphTargetDictionary
+      const inf = mesh.morphTargetInfluences
+      if (!dict || !inf) return
+      for (const name in dict) {
+        const lower = name.toLowerCase()
+        if (
+          lower.includes("mouth") ||
+          lower.includes("lip") ||
+          lower.includes("jaw") ||
+          /^(aa|ih|ou|ee|oh|fcl_mth|mth)/i.test(name)
+        ) {
+          inf[dict[name]] = 0
+        }
       }
     })
+
+    // Sanity log every ~2 seconds so we can confirm the loop is running
+    if (++frameCounterRef.current % 120 === 0) {
+      // eslint-disable-next-line no-console
+      console.log("[VRM] mouth-silence tick #", frameCounterRef.current)
+    }
   })
 
   // Use vrm.scene if present, otherwise the raw glTF scene
