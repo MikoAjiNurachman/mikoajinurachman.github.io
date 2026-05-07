@@ -310,17 +310,35 @@ function GltfCharacter({
     const sbm = (vrm as any).springBoneManager
     if (sbm) sbm.autoUpdate = false
 
-    // Dump morph target names per mesh — paste this output back to me if
-    // mouth still moves so we can target the right names.
-    const dump: Record<string, string[]> = {}
+    // Dump morph target names AS TEXT (not collapsed in DevTools), and
+    // also scan for any non-humanoid bone whose name suggests it could
+    // animate the mouth (jaw / teeth / tongue / lip).
+    const morphSeen = new Set<string>()
     vrm.scene.traverse((obj) => {
       const mesh = obj as THREE.SkinnedMesh
       if (mesh.morphTargetDictionary) {
-        dump[mesh.name || "(unnamed)"] = Object.keys(mesh.morphTargetDictionary)
+        for (const k of Object.keys(mesh.morphTargetDictionary)) morphSeen.add(k)
       }
     })
     // eslint-disable-next-line no-console
-    console.log(`[VRM ${url}] morph targets per mesh:`, dump)
+    console.log(`[VRM ${url}] morph names (${morphSeen.size}):`, [...morphSeen].join(", "))
+
+    const suspectBones: string[] = []
+    vrm.scene.traverse((obj) => {
+      const lower = (obj.name || "").toLowerCase()
+      if (
+        obj.name &&
+        (lower.includes("jaw") ||
+          lower.includes("mouth") ||
+          lower.includes("lip") ||
+          lower.includes("teeth") ||
+          lower.includes("tongue"))
+      ) {
+        suspectBones.push(`${obj.name} (${obj.type})`)
+      }
+    })
+    // eslint-disable-next-line no-console
+    console.log(`[VRM ${url}] mouth-related bones:`, suspectBones.length ? suspectBones.join(", ") : "(none)")
   }, [vrm, url])
 
   // Per-frame: update VRM internals + force-silence the mouth.
@@ -351,14 +369,24 @@ function GltfCharacter({
       em.update()
     }
 
-    // Aggressive: zero ALL morph target influences on every mesh.
-    // This sacrifices blink temporarily to guarantee the mouth stops.
-    // Once we identify the actual mouth morph names from the dump above,
-    // we'll switch back to selective zeroing so blink works again.
+    // Aggressive: zero ALL morph target influences on every mesh + freeze
+    // any non-humanoid bone whose name suggests jaw / mouth / lip / teeth
+    // (skeletal mouth animation isn't covered by morphs).
     vrm.scene.traverse((obj) => {
       const mesh = obj as THREE.SkinnedMesh
       if (mesh.morphTargetInfluences && mesh.morphTargetInfluences.length) {
         mesh.morphTargetInfluences.fill(0)
+      }
+      const lower = (obj.name || "").toLowerCase()
+      if (
+        obj.name &&
+        (lower.includes("jaw") ||
+          lower.includes("mouth") ||
+          lower.includes("lip") ||
+          lower.includes("teeth") ||
+          lower.includes("tongue"))
+      ) {
+        obj.rotation.set(0, 0, 0)
       }
     })
 
