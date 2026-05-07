@@ -7,10 +7,12 @@ import { CertificatesSection } from "@/components/certificates-section"
 import { ContactSection } from "@/components/contact-section"
 import { Navbar } from "@/components/navbar"
 import { ScrollToTop } from "@/components/scroll-to-top"
+import { SceneBackground } from "@/components/scene-background"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background overflow-x-hidden">
+    <main className="relative min-h-screen overflow-x-hidden">
+      <SceneBackground />
       <Navbar />
       <HeroSection />
       <AboutSection />
