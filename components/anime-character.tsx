@@ -297,44 +297,57 @@ function GltfCharacter({
     }
   }, [vrm, gltf, pose, url])
 
-  // One-time: silence the mouth on load so the model doesn't "mangap-mangap"
-  // (some VRMs ship with non-zero default expressions, esp. the lip-sync
-  // visemes "aa", "ih", "ou", "ee", "oh"). Also disable expression auto-update
-  // so they can't be re-driven by anything internal.
+  // One-time: dump all expressions + animations the model has, plus disable
+  // expressionManager auto-update so internal lookAt / talk drivers can't
+  // re-set values once we zero them.
   useEffect(() => {
     if (!vrm) return
     const em = vrm.expressionManager
-    if (!em) return
-    for (const name of ["aa", "ih", "ou", "ee", "oh", "neutral"] as const) {
-      try {
-        em.setValue(name, 0)
-      } catch {
-        /* expression doesn't exist on this model — ignore */
-      }
+    if (em) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(em as any).autoUpdate = false
+      const exprNames = em.expressions
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((e: any) => e.expressionName ?? e.name ?? "?")
+      const animNames = (gltf.animations ?? []).map((a) => a.name)
+      // eslint-disable-next-line no-console
+      console.log(
+        `[VRM ${url}] expressions:`, exprNames,
+        "\nanimations:", animNames.length ? animNames : "(none)"
+      )
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(em as any).autoUpdate = false
-    em.update()
-  }, [vrm])
+  }, [vrm, gltf, url])
 
-  // Per-frame: only update VRM internals (spring bones, look-at, etc).
-  // The pose itself is set on the normalized humanoid in useEffect below
-  // and persists because autoUpdateHumanBones = true (default) copies
-  // normalized → raw each update(). Mouth visemes are zeroed every frame
-  // as a belt-and-suspenders against any auto-driven lip-sync.
+  // Per-frame: update VRM internals + AGGRESSIVELY silence the face.
+  //   1. Zero out every expression in the manager (handles custom names too).
+  //   2. As a belt-and-suspenders, zero the raw morphTargetInfluences on
+  //      every SkinnedMesh — kills any morph animation playing outside the
+  //      expression system.
   useFrame((_, delta) => {
     if (!vrm) return
     vrm.update(delta)
+
     const em = vrm.expressionManager
     if (em) {
-      for (const name of ["aa", "ih", "ou", "ee", "oh"] as const) {
-        try {
-          em.setValue(name, 0)
-        } catch {
-          /* ignore missing */
+      for (const expr of em.expressions) {
+        // VRM 1.x exposes `expressionName`; VRM 0.x falls back to `name`
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const name = (expr as any).expressionName ?? (expr as any).name
+        if (name) {
+          try { em.setValue(name, 0) } catch { /* ignore missing */ }
         }
       }
+      em.update()
     }
+
+    // Nuke raw morph target influences too, in case the model has direct
+    // morph animation or sets them outside the expression system.
+    vrm.scene.traverse((obj) => {
+      const mesh = obj as THREE.SkinnedMesh
+      if (mesh.morphTargetInfluences && mesh.morphTargetInfluences.length) {
+        mesh.morphTargetInfluences.fill(0)
+      }
+    })
   })
 
   // Use vrm.scene if present, otherwise the raw glTF scene
