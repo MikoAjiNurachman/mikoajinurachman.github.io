@@ -297,48 +297,32 @@ function GltfCharacter({
     }
   }, [vrm, gltf, pose, url])
 
-  // One-time: disable face / spring auto-updates + dump every morph target
-  // name on every skinned mesh, so we can see exactly what the model exposes.
+  // One-time: NUCLEAR — replace expressionManager.update with a no-op so
+  // nothing internal can drive morph weights. Plus dump all bone names so
+  // we can spot any non-standard mouth/jaw bone we might've missed.
   useEffect(() => {
     if (!vrm) return
     const em = vrm.expressionManager
     if (em) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(em as any).autoUpdate = false
+      // Nuclear: stub out update so nothing applies expression weights.
+      // We'll keep zeroing morph influences directly in useFrame.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(em as any).update = () => {}
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sbm = (vrm as any).springBoneManager
     if (sbm) sbm.autoUpdate = false
 
-    // Dump morph target names AS TEXT (not collapsed in DevTools), and
-    // also scan for any non-humanoid bone whose name suggests it could
-    // animate the mouth (jaw / teeth / tongue / lip).
-    const morphSeen = new Set<string>()
+    // Dump ALL bone names so we can see if there's a non-standard
+    // mouth/jaw/lip bone driving the mouth.
+    const allBones: string[] = []
     vrm.scene.traverse((obj) => {
-      const mesh = obj as THREE.SkinnedMesh
-      if (mesh.morphTargetDictionary) {
-        for (const k of Object.keys(mesh.morphTargetDictionary)) morphSeen.add(k)
-      }
+      if (obj.type === "Bone") allBones.push(obj.name || "(unnamed)")
     })
     // eslint-disable-next-line no-console
-    console.log(`[VRM ${url}] morph names (${morphSeen.size}):`, [...morphSeen].join(", "))
-
-    const suspectBones: string[] = []
-    vrm.scene.traverse((obj) => {
-      const lower = (obj.name || "").toLowerCase()
-      if (
-        obj.name &&
-        (lower.includes("jaw") ||
-          lower.includes("mouth") ||
-          lower.includes("lip") ||
-          lower.includes("teeth") ||
-          lower.includes("tongue"))
-      ) {
-        suspectBones.push(`${obj.name} (${obj.type})`)
-      }
-    })
-    // eslint-disable-next-line no-console
-    console.log(`[VRM ${url}] mouth-related bones:`, suspectBones.length ? suspectBones.join(", ") : "(none)")
+    console.log(`[VRM ${url}] all bones (${allBones.length}):`, allBones.join(", "))
   }, [vrm, url])
 
   // Per-frame: update VRM internals + force-silence the mouth.
@@ -390,10 +374,28 @@ function GltfCharacter({
       }
     })
 
-    // Sanity log every ~2 seconds so we can confirm the loop is running
+    // Sanity: log the SUM of morph influences on the first face mesh every
+    // 2 seconds. If this is 0 but mouth still moves visually, the motion
+    // isn't morph-driven at all (skeletal / shader / something else).
     if (++frameCounterRef.current % 120 === 0) {
+      let mouthSum = 0
+      let mthCount = 0
+      vrm.scene.traverse((obj) => {
+        const mesh = obj as THREE.SkinnedMesh
+        const dict = mesh.morphTargetDictionary
+        const inf = mesh.morphTargetInfluences
+        if (!dict || !inf) return
+        for (const name in dict) {
+          if (/^Fcl_MTH_/i.test(name)) {
+            mouthSum += Math.abs(inf[dict[name]])
+            mthCount++
+          }
+        }
+      })
       // eslint-disable-next-line no-console
-      console.log("[VRM] mouth-silence tick #", frameCounterRef.current)
+      console.log(
+        `[VRM] tick #${frameCounterRef.current} — Fcl_MTH_* sum across ${mthCount} morphs = ${mouthSum.toFixed(4)}`
+      )
     }
   })
 
