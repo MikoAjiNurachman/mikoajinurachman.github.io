@@ -297,9 +297,8 @@ function GltfCharacter({
     }
   }, [vrm, gltf, pose, url])
 
-  // One-time: silence the face manager + spring bone physics. We keep blink
-  // working by NOT zeroing it (face still alive but mouth shut). Spring bones
-  // can drive jaw/face jiggle on some VRMs — disable so face stays still.
+  // One-time: disable face / spring auto-updates + dump every morph target
+  // name on every skinned mesh, so we can see exactly what the model exposes.
   useEffect(() => {
     if (!vrm) return
     const em = vrm.expressionManager
@@ -307,12 +306,22 @@ function GltfCharacter({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(em as any).autoUpdate = false
     }
-    // Spring bone physics for face/hair/cloth — disable auto-update so jaw
-    // / face spring bones don't jiggle the mouth open.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sbm = (vrm as any).springBoneManager
     if (sbm) sbm.autoUpdate = false
-  }, [vrm])
+
+    // Dump morph target names per mesh — paste this output back to me if
+    // mouth still moves so we can target the right names.
+    const dump: Record<string, string[]> = {}
+    vrm.scene.traverse((obj) => {
+      const mesh = obj as THREE.SkinnedMesh
+      if (mesh.morphTargetDictionary) {
+        dump[mesh.name || "(unnamed)"] = Object.keys(mesh.morphTargetDictionary)
+      }
+    })
+    // eslint-disable-next-line no-console
+    console.log(`[VRM ${url}] morph targets per mesh:`, dump)
+  }, [vrm, url])
 
   // Per-frame: update VRM internals + force-silence the mouth.
   const frameCounterRef = useRef(0)
@@ -342,23 +351,14 @@ function GltfCharacter({
       em.update()
     }
 
-    // Belt-and-suspenders: traverse meshes and zero any morph target whose
-    // name looks mouth-related (skip eye/blink morphs to keep blinking).
+    // Aggressive: zero ALL morph target influences on every mesh.
+    // This sacrifices blink temporarily to guarantee the mouth stops.
+    // Once we identify the actual mouth morph names from the dump above,
+    // we'll switch back to selective zeroing so blink works again.
     vrm.scene.traverse((obj) => {
       const mesh = obj as THREE.SkinnedMesh
-      const dict = mesh.morphTargetDictionary
-      const inf = mesh.morphTargetInfluences
-      if (!dict || !inf) return
-      for (const name in dict) {
-        const lower = name.toLowerCase()
-        if (
-          lower.includes("mouth") ||
-          lower.includes("lip") ||
-          lower.includes("jaw") ||
-          /^(aa|ih|ou|ee|oh|fcl_mth|mth)/i.test(name)
-        ) {
-          inf[dict[name]] = 0
-        }
+      if (mesh.morphTargetInfluences && mesh.morphTargetInfluences.length) {
+        mesh.morphTargetInfluences.fill(0)
       }
     })
 
