@@ -1,70 +1,29 @@
 "use client"
 
-import { Canvas, useFrame } from "@react-three/fiber"
-import { Float, Sparkles, Edges } from "@react-three/drei"
-import { Suspense, useRef } from "react"
-import * as THREE from "three"
+import { Canvas } from "@react-three/fiber"
+import { Suspense } from "react"
 import { motion } from "framer-motion"
-
-function AnimePolyhedron() {
-  const inner = useRef<THREE.Mesh>(null)
-  const outline = useRef<THREE.Mesh>(null)
-
-  useFrame((state) => {
-    const t = state.clock.elapsedTime
-    if (inner.current) {
-      inner.current.rotation.x = t * 0.3
-      inner.current.rotation.y = t * 0.45
-    }
-    if (outline.current) {
-      outline.current.rotation.x = t * 0.3
-      outline.current.rotation.y = t * 0.45
-    }
-  })
-
-  return (
-    <Float speed={1.4} rotationIntensity={0.5} floatIntensity={0.7}>
-      <group>
-        {/* Outline back-face */}
-        <mesh ref={outline} scale={1.06}>
-          <dodecahedronGeometry args={[1.4, 0]} />
-          <meshBasicMaterial color="#0a0a1a" side={THREE.BackSide} />
-        </mesh>
-
-        {/* Toon body */}
-        <mesh ref={inner}>
-          <dodecahedronGeometry args={[1.4, 0]} />
-          <meshToonMaterial color="#a98bff" />
-          <Edges threshold={15} color="#bfe6ff" />
-        </mesh>
-
-        {/* Inner accent sphere */}
-        <mesh scale={0.55}>
-          <sphereGeometry args={[1, 32, 32]} />
-          <meshBasicMaterial color="#ff6fbf" transparent opacity={0.5} />
-        </mesh>
-
-        {/* Soft outer glow */}
-        <mesh scale={1.7}>
-          <sphereGeometry args={[1.3, 32, 32]} />
-          <meshBasicMaterial color="#a98bff" transparent opacity={0.10} depthWrite={false} />
-        </mesh>
-      </group>
-    </Float>
-  )
-}
+import { AnimeCharacter } from "@/components/anime-character"
 
 function AboutScene() {
   return (
     <>
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[5, 5, 5]} intensity={1} color="#bfe6ff" />
-      <pointLight position={[-5, -5, -3]} color="#ff6fbf" intensity={1} />
-      <pointLight position={[5, -3, 4]} color="#ffe27a" intensity={0.8} />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[5, 5, 5]} intensity={1.2} color="#ffffff" />
+      <directionalLight position={[-5, 3, 2]} intensity={0.7} color="#bfe6ff" />
+      <pointLight position={[-5, -5, -3]} color="#5b8bff" intensity={0.8} />
+      <pointLight position={[5, -3, 4]} color="#a8e6ff" intensity={0.6} />
 
-      <AnimePolyhedron />
-
-      <Sparkles count={50} scale={[6, 6, 6]} size={4} speed={0.5} color="#bfe6ff" opacity={0.85} />
+      {/* character1.vrm — sitting peace pose, no decorative particles around.
+          noFallback: skip chibi placeholder so refresh doesn't show a flash
+          of the wrong character. */}
+      <AnimeCharacter
+        model="/models/character1.vrm"
+        position={[0, -1.8, 0]}
+        scale={2.8}
+        pose="peace"
+        noFallback
+      />
     </>
   )
 }
@@ -106,15 +65,11 @@ export function AboutSection() {
         variants={containerVariants}
       >
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-          {/* 3D */}
+          {/* 3D — bare canvas, no decorative rings/sparkles around the character */}
           <motion.div
-            className="h-[360px] sm:h-[460px] lg:h-[540px] relative order-2 lg:order-1"
+            className="h-[420px] sm:h-[520px] lg:h-[620px] relative order-2 lg:order-1"
             variants={fadeIn}
           >
-            {/* Decorative orbital rings (CSS) */}
-            <div className="absolute inset-8 rounded-full border border-primary/15 animate-spin-slow pointer-events-none" />
-            <div className="absolute inset-16 rounded-full border border-accent/15 animate-spin-slow [animation-direction:reverse] [animation-duration:24s] pointer-events-none" />
-
             <Canvas camera={{ position: [0, 0, 5] }} dpr={[1, 1.6]}>
               <Suspense fallback={null}>
                 <AboutScene />

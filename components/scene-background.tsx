@@ -5,7 +5,7 @@ import { Sparkles } from "@react-three/drei"
 import { Suspense, useMemo, useRef } from "react"
 import * as THREE from "three"
 
-const PALETTE = ["#7ad7ff", "#ff6fbf", "#a98bff", "#ffe27a"]
+const PALETTE = ["#7ad7ff", "#a8e6ff", "#4facfe", "#5b8bff"]
 
 function EnergyDust({ count = 350 }: { count?: number }) {
   const ref = useRef<THREE.Points>(null)
@@ -106,14 +106,14 @@ function Scene() {
     <>
       <ambientLight intensity={0.3} />
       <directionalLight position={[5, 5, 5]} intensity={0.9} color="#bfe6ff" />
-      <directionalLight position={[-5, -3, 4]} intensity={0.6} color="#ff8ec8" />
+      <directionalLight position={[-5, -3, 4]} intensity={0.6} color="#5b8bff" />
 
       <EnergyDust count={400} />
 
       <FloatingShard position={[-7, 2, -5]} color="#7ad7ff" scale={0.9} speed={0.6} />
-      <FloatingShard position={[7, -1, -4]} color="#ff6fbf" scale={0.8} speed={-0.7} />
-      <FloatingShard position={[0, -4, -7]} color="#a98bff" scale={1.1} speed={0.5} />
-      <FloatingShard position={[5, 4, -6]} color="#ffe27a" scale={0.6} speed={-0.8} />
+      <FloatingShard position={[7, -1, -4]} color="#4facfe" scale={0.8} speed={-0.7} />
+      <FloatingShard position={[0, -4, -7]} color="#5b8bff" scale={1.1} speed={0.5} />
+      <FloatingShard position={[5, 4, -6]} color="#a8e6ff" scale={0.6} speed={-0.8} />
       <FloatingShard position={[-6, -3, -3]} color="#7ad7ff" scale={0.5} speed={0.9} />
 
       <Sparkles count={70} scale={[20, 12, 20]} size={4} speed={0.4} color="#bfe6ff" opacity={0.6} />

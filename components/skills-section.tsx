@@ -108,15 +108,15 @@ function SkillsScene() {
     <>
       <ambientLight intensity={0.4} />
       <directionalLight position={[5, 5, 5]} intensity={1} color="#bfe6ff" />
-      <pointLight position={[-5, -3, 4]} color="#ff6fbf" intensity={1.1} />
-      <pointLight position={[5, 3, -4]} color="#ffe27a" intensity={0.7} />
+      <pointLight position={[-5, -3, 4]} color="#5b8bff" intensity={1.1} />
+      <pointLight position={[5, 3, -4]} color="#a8e6ff" intensity={0.7} />
 
       <ToonTorusKnot />
 
       <OrbitNode radius={2.6} speed={0.55} color="#7ad7ff" yOffset={0.6} />
-      <OrbitNode radius={2.6} speed={-0.65} color="#ff6fbf" yOffset={-0.5} scale={0.16} />
-      <OrbitNode radius={2.4} speed={0.4} color="#ffe27a" yOffset={0.0} scale={0.18} />
-      <OrbitNode radius={2.8} speed={-0.3} color="#a98bff" yOffset={-0.9} scale={0.14} />
+      <OrbitNode radius={2.6} speed={-0.65} color="#4facfe" yOffset={-0.5} scale={0.16} />
+      <OrbitNode radius={2.4} speed={0.4} color="#a8e6ff" yOffset={0.0} scale={0.18} />
+      <OrbitNode radius={2.8} speed={-0.3} color="#5b8bff" yOffset={-0.9} scale={0.14} />
 
       <Sparkles count={70} scale={[7, 7, 7]} size={5} speed={0.5} color="#bfe6ff" opacity={0.85} />
 
@@ -164,10 +164,10 @@ export function SkillsSection() {
           <div className="h-px w-32 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
           {/* Skills Grid */}
           <motion.div
-            className="grid sm:grid-cols-2 gap-5 order-1"
+            className="grid sm:grid-cols-2 gap-5 auto-rows-min order-1"
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
@@ -223,7 +223,7 @@ export function SkillsSection() {
 
           {/* 3D */}
           <motion.div
-            className="h-[400px] lg:h-full min-h-[500px] relative order-2 hidden lg:block rounded-3xl overflow-hidden glass neon-border scanlines"
+            className="h-[560px] relative order-2 hidden lg:block rounded-3xl overflow-hidden glass neon-border scanlines self-start"
             initial={{ opacity: 0, x: 24 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}

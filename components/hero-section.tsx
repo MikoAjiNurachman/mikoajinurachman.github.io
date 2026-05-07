@@ -1,58 +1,13 @@
 "use client"
 
 import { Canvas, useFrame } from "@react-three/fiber"
-import { Sparkles, Trail, Float } from "@react-three/drei"
+import { Sparkles, Trail } from "@react-three/drei"
 import { Github, Linkedin, Mail, ChevronDown, Zap } from "lucide-react"
 import { Suspense, useRef } from "react"
 import * as THREE from "three"
 import { motion } from "framer-motion"
+import { AnimeCharacter } from "@/components/anime-character"
 
-function ToonCrystal() {
-  const inner = useRef<THREE.Mesh>(null)
-  const outline = useRef<THREE.Mesh>(null)
-
-  useFrame((state) => {
-    const t = state.clock.elapsedTime
-    if (inner.current) {
-      inner.current.rotation.y = t * 0.45
-      inner.current.rotation.x = Math.sin(t * 0.5) * 0.25
-    }
-    if (outline.current) {
-      outline.current.rotation.y = t * 0.45
-      outline.current.rotation.x = Math.sin(t * 0.5) * 0.25
-    }
-  })
-
-  return (
-    <Float speed={1.6} rotationIntensity={0.5} floatIntensity={0.9}>
-      <group>
-        {/* Outline shell — back-face render to fake anime line */}
-        <mesh ref={outline} scale={1.06}>
-          <icosahedronGeometry args={[1.4, 0]} />
-          <meshBasicMaterial color="#0a0a1a" side={THREE.BackSide} />
-        </mesh>
-
-        {/* Toon-shaded core */}
-        <mesh ref={inner}>
-          <icosahedronGeometry args={[1.4, 0]} />
-          <meshToonMaterial color="#9ad9ff" />
-        </mesh>
-
-        {/* Inner emissive heart */}
-        <mesh scale={0.55}>
-          <icosahedronGeometry args={[1, 0]} />
-          <meshBasicMaterial color="#ff6fbf" transparent opacity={0.65} />
-        </mesh>
-
-        {/* Outer glow halo */}
-        <mesh scale={1.7}>
-          <sphereGeometry args={[1, 32, 32]} />
-          <meshBasicMaterial color="#7ad7ff" transparent opacity={0.10} depthWrite={false} />
-        </mesh>
-      </group>
-    </Float>
-  )
-}
 
 function EnergyRing({
   radius = 2.4,
@@ -127,18 +82,37 @@ function HeroScene() {
     <>
       <ambientLight intensity={0.35} />
       <directionalLight position={[5, 5, 5]} intensity={1} color="#bfe6ff" />
-      <directionalLight position={[-5, -3, 4]} intensity={0.7} color="#ff8ec8" />
-      <pointLight position={[0, 0, 4]} intensity={0.6} color="#ffe27a" />
+      <directionalLight position={[-5, -3, 4]} intensity={0.7} color="#5b8bff" />
+      <pointLight position={[0, 0, 4]} intensity={0.6} color="#a8e6ff" />
 
-      <ToonCrystal />
+      {/* Two mirrored characters flanking the centered hero text.
+          The two `model` props differ by query string so useGLTF caches them
+          as separate scene instances (otherwise three.js reparents the same
+          object and only one is visible).
+          noFallback: skip the chibi placeholder so refreshing doesn't flash a
+          different model briefly before the VRM finishes loading. */}
+      <AnimeCharacter
+        model="/models/character.vrm"
+        position={[-2.8, -1.6, 0]}
+        scale={0.8}
+        pose="point"
+        noFallback
+      />
+      <AnimeCharacter
+        model="/models/character.vrm?n=2"
+        position={[2.8, -1.6, 0]}
+        scale={0.8}
+        pose="pointRight"
+        noFallback
+      />
 
       <EnergyRing radius={2.4} tilt={Math.PI / 2.5} speed={0.4} color="#7ad7ff" />
-      <EnergyRing radius={2.7} tilt={Math.PI / 3} speed={-0.25} color="#ff6fbf" thickness={0.012} />
-      <EnergyRing radius={3.0} tilt={Math.PI / 2.2} speed={0.18} color="#a98bff" thickness={0.008} />
+      <EnergyRing radius={2.7} tilt={Math.PI / 3} speed={-0.25} color="#4facfe" thickness={0.012} />
+      <EnergyRing radius={3.0} tilt={Math.PI / 2.2} speed={0.18} color="#5b8bff" thickness={0.008} />
 
       <OrbitingShard radius={2.4} speed={0.7} color="#7ad7ff" yOffset={0.1} trail />
-      <OrbitingShard radius={2.6} speed={-0.5} color="#ff6fbf" yOffset={-0.3} scale={0.14} />
-      <OrbitingShard radius={2.2} speed={0.6} color="#ffe27a" yOffset={0.4} scale={0.16} />
+      <OrbitingShard radius={2.6} speed={-0.5} color="#4facfe" yOffset={-0.3} scale={0.14} />
+      <OrbitingShard radius={2.2} speed={0.6} color="#a8e6ff" yOffset={0.4} scale={0.16} />
 
       <Sparkles count={60} scale={[6, 6, 6]} size={5} speed={0.6} color="#bfe6ff" opacity={0.9} />
     </>
@@ -163,7 +137,7 @@ export function HeroSection() {
   return (
     <section
       id="home"
-      className="relative min-h-screen w-full flex items-center justify-center overflow-hidden grain"
+      className="relative min-h-screen w-full flex items-center justify-center overflow-hidden grain pt-24 pb-16 md:pt-28 md:pb-20"
     >
       {/* 3D layer */}
       <div className="absolute inset-0 z-0">
@@ -180,14 +154,16 @@ export function HeroSection() {
       {/* Soft vignette */}
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_45%,oklch(0.10_0.04_265/0.75)_100%)]" />
 
-      {/* Content */}
+      {/* Content — pointer-events:none so empty padding doesn't block clicks
+          on the 3D character behind. Interactive children re-enable pointer
+          events with pointer-events-auto. */}
       <motion.div
-        className="relative z-10 text-center px-6 max-w-4xl"
+        className="relative z-10 text-center px-6 max-w-4xl pointer-events-none"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        <motion.div variants={itemVariants} className="mb-8 flex justify-center">
+        <motion.div variants={itemVariants} className="mb-8 flex justify-center pointer-events-auto">
           <div className="relative">
             {/* Outer rotating ring */}
             <div className="absolute -inset-4 rounded-full border border-primary/40 animate-spin-slow" />
@@ -206,7 +182,7 @@ export function HeroSection() {
 
         <motion.div
           variants={itemVariants}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass neon-border mb-6 text-[11px] font-medium tracking-[0.28em] uppercase text-primary"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass neon-border mb-6 text-[11px] font-medium tracking-[0.28em] uppercase text-primary pointer-events-auto"
         >
           <Zap className="w-3.5 h-3.5 text-highlight" />
           AI Native Engineer
@@ -215,7 +191,7 @@ export function HeroSection() {
 
         <motion.h1
           variants={itemVariants}
-          className="text-5xl sm:text-7xl md:text-8xl font-bold mb-6 tracking-tight leading-[1.02]"
+          className="text-5xl sm:text-7xl md:text-8xl font-bold mb-6 tracking-tight leading-[1.02] pointer-events-auto"
         >
           <span className="block text-foreground/95">Miko Aji</span>
           <span className="block text-anime">Nurachman</span>
@@ -223,7 +199,7 @@ export function HeroSection() {
 
         <motion.p
           variants={itemVariants}
-          className="text-base md:text-lg text-foreground/75 mb-10 max-w-2xl mx-auto font-light leading-relaxed"
+          className="text-base md:text-lg text-foreground/75 mb-10 max-w-2xl mx-auto font-light leading-relaxed pointer-events-auto"
         >
           Forging resilient systems with{" "}
           <span className="text-primary font-semibold">Go</span>,{" "}
@@ -234,7 +210,7 @@ export function HeroSection() {
           for banking platforms.
         </motion.p>
 
-        <motion.div variants={itemVariants} className="flex items-center justify-center gap-3 mb-14">
+        <motion.div variants={itemVariants} className="flex items-center justify-center gap-3 mb-14 pointer-events-auto">
           {[
             { icon: Github, href: "https://github.com/mikoajinurachman", label: "GitHub" },
             { icon: Linkedin, href: "https://www.linkedin.com/in/miko-nurachman-9927a4369/", label: "LinkedIn" },
@@ -253,7 +229,7 @@ export function HeroSection() {
           ))}
         </motion.div>
 
-        <motion.div variants={itemVariants}>
+        <motion.div variants={itemVariants} className="pointer-events-auto inline-block">
           <a
             href="#about"
             className="inline-flex flex-col items-center gap-2 text-foreground/60 hover:text-primary transition-colors group"
