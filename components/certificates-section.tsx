@@ -36,21 +36,21 @@ const certificates = [
 
 export function CertificatesSection() {
   return (
-    <section id="certificates" className="py-24 sm:py-32 px-6">
+    <section id="certificates" className="py-28 sm:py-36 px-6 relative">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight"
+            className="text-4xl sm:text-5xl lg:text-6xl font-semibold mb-4 tracking-tight"
           >
-            Certificates & <span className="text-primary italic">Learning</span>
+            Certificates &amp; <span className="text-anime italic font-light">learning</span>
           </motion.h2>
-          <div className="h-1 w-24 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
+          <div className="h-px w-32 bg-gradient-to-r from-transparent via-primary/60 to-transparent mx-auto" />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {certificates.map((cert, index) => (
             <motion.div
               key={index}
@@ -58,37 +58,36 @@ export function CertificatesSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="group relative bg-secondary/10 border border-white/5 rounded-3xl overflow-hidden hover:border-primary/20 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5"
+              className="group relative glass neon-border rounded-3xl overflow-hidden hover:bg-foreground/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10"
             >
-              {/* Certificate Image/Placeholder */}
-              <div className="relative h-48 overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700">
+              <div className="relative h-44 overflow-hidden">
                 <img
                   src={cert.image}
                   alt={cert.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent pointer-events-none" />
-                
-                {/* Badge Overlay */}
-                <div className="absolute top-4 right-4 p-2 rounded-xl bg-background/80 backdrop-blur-md border border-white/10 shadow-lg">
-                   <Award className="w-5 h-5 text-primary" />
+                <div className="absolute inset-0 bg-gradient-to-t from-card/95 via-card/30 to-transparent" />
+
+                <div className="absolute top-3 right-3 p-2 rounded-2xl glass-strong">
+                  <Award className="w-4 h-4 text-primary" />
                 </div>
               </div>
 
-              {/* Content */}
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <CheckCircle className="w-4 h-4 text-primary" />
-                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{cert.issuer}</span>
+              <div className="p-6 -mt-2 relative">
+                <div className="flex items-center gap-2 mb-3">
+                  <CheckCircle className="w-3.5 h-3.5 text-accent" />
+                  <span className="text-[10px] font-bold text-foreground/60 uppercase tracking-[0.2em]">
+                    {cert.issuer}
+                  </span>
                 </div>
 
-                <h3 className="font-bold text-lg mb-6 group-hover:text-primary transition-colors">
+                <h3 className="font-semibold text-base mb-5 text-foreground group-hover:text-anime transition-colors leading-snug">
                   {cert.title}
                 </h3>
 
-                <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
-                  <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
-                    <Calendar className="w-3.5 h-3.5" />
+                <div className="flex items-center justify-between pt-4 border-t border-foreground/8">
+                  <div className="flex items-center gap-1.5 text-xs font-mono text-foreground/50">
+                    <Calendar className="w-3 h-3" />
                     {cert.date}
                   </div>
                   <a
@@ -96,7 +95,7 @@ export function CertificatesSection() {
                     className="p-2 rounded-full hover:bg-primary/10 text-primary transition-all duration-300"
                     aria-label="View credential"
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
               </div>

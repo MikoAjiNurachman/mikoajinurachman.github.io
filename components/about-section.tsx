@@ -1,56 +1,104 @@
 "use client"
 
-import { Canvas } from "@react-three/fiber"
-import { Float, Sphere, MeshDistortMaterial } from "@react-three/drei"
-import { Suspense } from "react"
+import { Canvas, useFrame } from "@react-three/fiber"
+import { Float, Sparkles, Edges } from "@react-three/drei"
+import { Suspense, useRef } from "react"
+import * as THREE from "three"
 import { motion } from "framer-motion"
 
-function AnimatedSphere() {
+function AnimePolyhedron() {
+  const inner = useRef<THREE.Mesh>(null)
+  const outline = useRef<THREE.Mesh>(null)
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime
+    if (inner.current) {
+      inner.current.rotation.x = t * 0.3
+      inner.current.rotation.y = t * 0.45
+    }
+    if (outline.current) {
+      outline.current.rotation.x = t * 0.3
+      outline.current.rotation.y = t * 0.45
+    }
+  })
+
   return (
-    <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.5}>
-      <Sphere args={[1.5, 64, 64]}>
-        <MeshDistortMaterial
-          color="#00f2fe"
-          attach="material"
-          distort={0.4}
-          speed={2}
-          roughness={0.1}
-          metalness={1}
-          emissive="#00f2fe"
-          emissiveIntensity={1}
-        />
-      </Sphere>
+    <Float speed={1.4} rotationIntensity={0.5} floatIntensity={0.7}>
+      <group>
+        {/* Outline back-face */}
+        <mesh ref={outline} scale={1.06}>
+          <dodecahedronGeometry args={[1.4, 0]} />
+          <meshBasicMaterial color="#0a0a1a" side={THREE.BackSide} />
+        </mesh>
+
+        {/* Toon body */}
+        <mesh ref={inner}>
+          <dodecahedronGeometry args={[1.4, 0]} />
+          <meshToonMaterial color="#a98bff" />
+          <Edges threshold={15} color="#bfe6ff" />
+        </mesh>
+
+        {/* Inner accent sphere */}
+        <mesh scale={0.55}>
+          <sphereGeometry args={[1, 32, 32]} />
+          <meshBasicMaterial color="#ff6fbf" transparent opacity={0.5} />
+        </mesh>
+
+        {/* Soft outer glow */}
+        <mesh scale={1.7}>
+          <sphereGeometry args={[1.3, 32, 32]} />
+          <meshBasicMaterial color="#a98bff" transparent opacity={0.10} depthWrite={false} />
+        </mesh>
+      </group>
     </Float>
+  )
+}
+
+function AboutScene() {
+  return (
+    <>
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[5, 5, 5]} intensity={1} color="#bfe6ff" />
+      <pointLight position={[-5, -5, -3]} color="#ff6fbf" intensity={1} />
+      <pointLight position={[5, -3, 4]} color="#ffe27a" intensity={0.8} />
+
+      <AnimePolyhedron />
+
+      <Sparkles count={50} scale={[6, 6, 6]} size={4} speed={0.5} color="#bfe6ff" opacity={0.85} />
+    </>
   )
 }
 
 export function AboutSection() {
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { 
-        staggerChildren: 0.1,
-        when: "beforeChildren"
-      }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.12, when: "beforeChildren" as const } },
   }
-
   const fadeIn = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: { y: 24, opacity: 0, filter: "blur(6px)" },
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.8, ease: "easeOut" }
-    }
+      filter: "blur(0px)",
+      transition: { duration: 0.85, ease: [0.22, 1, 0.36, 1] as const },
+    },
+  }
+  const popIn = {
+    hidden: { scale: 0.85, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: { type: "spring" as const, stiffness: 260, damping: 20 },
+    },
   }
 
   return (
-    <section id="about" className="py-24 sm:py-32 px-6 relative overflow-hidden bg-background/50">
-      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] pointer-events-none" />
+    <section id="about" className="py-28 sm:py-36 px-6 relative overflow-hidden">
+      {/* Soft gradient halos */}
+      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-[600px] h-[600px] bg-primary/15 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/3 w-[600px] h-[600px] bg-accent/15 rounded-full blur-[120px] pointer-events-none" />
 
-      <motion.div 
+      <motion.div
         className="max-w-7xl mx-auto"
         initial="hidden"
         whileInView="visible"
@@ -58,69 +106,88 @@ export function AboutSection() {
         variants={containerVariants}
       >
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-          {/* 3D Element & Background Decoration */}
-          <motion.div 
-            className="h-[300px] sm:h-[400px] lg:h-[500px] relative order-2 lg:order-1"
+          {/* 3D */}
+          <motion.div
+            className="h-[360px] sm:h-[460px] lg:h-[540px] relative order-2 lg:order-1"
             variants={fadeIn}
           >
-            <div className="absolute inset-x-0 bottom-0 top-0 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
-            <Canvas camera={{ position: [0, 0, 5] }}>
+            {/* Decorative orbital rings (CSS) */}
+            <div className="absolute inset-8 rounded-full border border-primary/15 animate-spin-slow pointer-events-none" />
+            <div className="absolute inset-16 rounded-full border border-accent/15 animate-spin-slow [animation-direction:reverse] [animation-duration:24s] pointer-events-none" />
+
+            <Canvas camera={{ position: [0, 0, 5] }} dpr={[1, 1.6]}>
               <Suspense fallback={null}>
-                <ambientLight intensity={0.5} />
-                <pointLight position={[10, 10, 10]} intensity={1.5} />
-                <pointLight position={[-10, -10, -10]} color="#4facfe" intensity={1} />
-                <AnimatedSphere />
+                <AboutScene />
               </Suspense>
             </Canvas>
-            
-            {/* Glossy Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-               <div className="w-[80%] h-[80%] border border-primary/20 rounded-full blur-2xl opacity-20" />
-            </div>
           </motion.div>
 
           {/* Content */}
           <div className="order-1 lg:order-2">
-            <motion.div variants={fadeIn} className="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-6">
-               Professional Profile
+            <motion.div
+              variants={fadeIn}
+              className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full glass neon-border mb-6 text-[10px] font-bold uppercase tracking-[0.28em] text-primary"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+              Profile / 01
+              <span className="text-foreground/40">— SYS</span>
             </motion.div>
-            
-            <motion.h2 variants={fadeIn} className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-8 tracking-tight">
-              Crafting <span className="text-primary italic">High-Performance</span> Solutions
+
+            <motion.h2
+              variants={fadeIn}
+              className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 tracking-tight leading-[1.05]"
+            >
+              Crafting{" "}
+              <span className="text-anime italic font-light">high-performance</span>{" "}
+              solutions
             </motion.h2>
 
-            <motion.div variants={fadeIn} className="space-y-6 text-muted-foreground/90 lg:text-lg leading-relaxed font-light">
+            <motion.div
+              variants={fadeIn}
+              className="space-y-6 text-foreground/75 lg:text-lg leading-relaxed font-light"
+            >
               <p>
-                I am a seasoned Software Engineer with over{" "}
-                <span className="text-foreground font-semibold border-b border-primary/30">6+ years of experience</span> specializing in{" "}
-                <span className="text-primary font-semibold">Banking and Financial Technology</span>.
+                I am an{" "}
+                <span className="text-primary font-semibold">AI Native Engineer</span> with over{" "}
+                <span className="text-foreground font-medium">6+ years of experience</span>{" "}
+                shipping production systems across{" "}
+                <span className="text-foreground font-medium">Banking and Financial Technology</span>.
               </p>
 
               <p>
-                My core expertise lies in <span className="text-foreground font-semibold">Go (Golang)</span>,{" "}
-                <span className="text-foreground font-semibold">React.js</span>, and heavy-duty 
-                <span className="text-foreground font-semibold"> IBM Integration Middleware</span>. I specialize 
-                in building mission-critical bridges between modern microservices and traditional legacy cores.
+                My toolkit blends <span className="text-foreground font-medium">Go (Golang)</span>,{" "}
+                <span className="text-foreground font-medium">React.js</span>, and heavy-duty{" "}
+                <span className="text-foreground font-medium">IBM Integration Middleware</span> with{" "}
+                <span className="text-accent font-medium">LLM-driven workflows</span>,{" "}
+                agentic tooling, and AI-assisted code generation — building mission-critical bridges
+                between modern microservices, traditional legacy cores, and emerging AI capabilities.
               </p>
 
-              <p>
-                I am a firm believer that <span className="italic text-primary font-medium">"The message is always right, but the application must be resilient."</span> I've spent years hardening systems against fraud, ensuring sub-second latencies, and orchestrating massive-scale container clusters.
+              <p className="italic text-foreground/85 border-l-2 border-accent pl-4">
+                "The message is always right, but the application must be resilient — and the model
+                only as good as the system around it."
               </p>
             </motion.div>
 
-            <motion.div variants={containerVariants} className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6 mt-12">
+            <motion.div
+              variants={containerVariants}
+              className="grid grid-cols-3 gap-3 lg:gap-4 mt-12"
+            >
               {[
-                { value: "6+", label: "Years Exp", gradient: "from-primary/10 to-accent/10" },
-                { value: "3", label: "Companies", gradient: "from-accent/10 to-primary/10" },
-                { value: "10+", label: "Projects", gradient: "from-primary/10 to-accent/10" }
+                { value: "6+", label: "Years Exp" },
+                { value: "3", label: "Companies" },
+                { value: "10+", label: "Projects" },
               ].map((stat, i) => (
-                <motion.div 
-                  key={i} 
-                  variants={fadeIn}
-                  className={`p-6 rounded-2xl bg-gradient-to-br ${stat.gradient} border border-white/5 backdrop-blur-sm hover:scale-105 transition-transform duration-300 shadow-lg shadow-black/5`}
+                <motion.div
+                  key={i}
+                  variants={popIn}
+                  whileHover={{ y: -4, scale: 1.04 }}
+                  className="relative p-5 lg:p-6 rounded-2xl glass neon-border transition-shadow hover:neon-glow"
                 >
-                  <div className="text-3xl lg:text-4xl font-black text-primary mb-1">{stat.value}</div>
-                  <div className="text-xs lg:text-sm text-muted-foreground/80 font-medium tracking-wide border-t border-primary/10 pt-2">{stat.label}</div>
+                  <div className="text-3xl lg:text-4xl font-bold text-anime mb-1">{stat.value}</div>
+                  <div className="text-[10px] lg:text-xs text-foreground/60 font-medium tracking-[0.18em] uppercase">
+                    {stat.label}
+                  </div>
                 </motion.div>
               ))}
             </motion.div>

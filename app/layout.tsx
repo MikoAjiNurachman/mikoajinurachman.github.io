@@ -14,11 +14,11 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "MIKO AJI | Systems Architect & Middleware Engineer",
+  title: "MIKO AJI | AI Native Engineer",
   description:
-    "Expert Software Engineer with 6+ years experience in Banking Middleware (IBM ACE/MQ), Go (Golang), and React. Building high-performance mission-critical systems.",
+    "AI Native Engineer with 6+ years experience in Banking Middleware (IBM ACE/MQ), Go (Golang), and React. Building high-performance mission-critical systems.",
   generator: "Next.js",
-  keywords: ["Systems Architect", "Middleware Engineer", "IBM ACE", "IBM MQ", "Golang", "Go Developer", "Banking Systems", "Microservices", "React"],
+  keywords: ["AI Native Engineer", "Middleware Engineer", "IBM ACE", "IBM MQ", "Golang", "Go Developer", "Banking Systems", "Microservices", "React"],
   authors: [{ name: "Miko Aji Nurachman" }],
   icons: {
     icon: "/favicon.svg",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#1a1830",
   width: "device-width",
   initialScale: 1,
 }
@@ -39,7 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark scroll-smooth">
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-black selection:bg-primary selection:text-primary-foreground`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-background selection:bg-primary/40 selection:text-foreground`}>
         {children}
       </body>
     </html>
