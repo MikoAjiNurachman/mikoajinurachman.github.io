@@ -60,7 +60,7 @@ export function ContactSection() {
               viewport={{ once: true }}
               className="text-5xl sm:text-6xl lg:text-7xl font-semibold mb-8 tracking-tight leading-[1.05]"
             >
-              Let's <span className="text-gradient italic font-light">connect.</span>
+              Let's <span className="text-anime italic font-light">connect.</span>
             </motion.h2>
 
             <p className="text-foreground/65 lg:text-lg font-light mb-12 max-w-md leading-relaxed">
@@ -75,7 +75,7 @@ export function ContactSection() {
             <div className="space-y-4">
               <a
                 href="mailto:mikoajin14@gmail.com"
-                className="group flex items-center gap-5 p-4 rounded-3xl glass gradient-border hover:bg-foreground/5 transition-all hover:-translate-y-0.5"
+                className="group flex items-center gap-5 p-4 rounded-3xl glass neon-border hover:bg-foreground/5 transition-all hover:-translate-y-0.5"
               >
                 <div className="p-3.5 rounded-2xl bg-primary/15 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                   <Mail className="w-5 h-5" />
@@ -88,7 +88,7 @@ export function ContactSection() {
                 </div>
               </a>
 
-              <div className="flex items-center gap-5 p-4 rounded-3xl glass gradient-border">
+              <div className="flex items-center gap-5 p-4 rounded-3xl glass neon-border">
                 <div className="p-3.5 rounded-2xl bg-accent/15 text-accent">
                   <MapPin className="w-5 h-5" />
                 </div>
@@ -110,7 +110,7 @@ export function ContactSection() {
                   key={i}
                   href={social.href}
                   target="_blank"
-                  className="p-3.5 rounded-2xl glass gradient-border hover:bg-primary/10 hover:text-primary transition-all hover:-translate-y-0.5"
+                  className="p-3.5 rounded-2xl glass neon-border hover:bg-primary/10 hover:text-primary transition-all hover:-translate-y-0.5"
                 >
                   <social.icon className="w-5 h-5" />
                 </a>
@@ -123,7 +123,7 @@ export function ContactSection() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="p-8 sm:p-10 rounded-[2rem] glass-strong gradient-border shadow-2xl shadow-primary/10 relative"
+            className="p-8 sm:p-10 rounded-[2rem] glass-strong neon-border shadow-2xl shadow-primary/10 relative"
           >
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
@@ -222,7 +222,7 @@ export function ContactSection() {
         {/* Footer */}
         <div className="mt-28 pt-10 border-t border-foreground/8 flex flex-col md:flex-row items-center justify-between gap-6 text-foreground/50">
           <p className="text-xs font-mono tracking-tight">
-            © {new Date().getFullYear()} MIKO AJI NURACHMAN — SYSTEMS ARCHITECT
+            © {new Date().getFullYear()} MIKO AJI NURACHMAN — AI NATIVE ENGINEER
           </p>
           <div className="flex gap-6 text-[10px] font-bold uppercase tracking-[0.2em]">
             <a href="#home" className="hover:text-primary transition-colors">

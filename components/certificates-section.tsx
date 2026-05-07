@@ -45,7 +45,7 @@ export function CertificatesSection() {
             viewport={{ once: true }}
             className="text-4xl sm:text-5xl lg:text-6xl font-semibold mb-4 tracking-tight"
           >
-            Certificates &amp; <span className="text-gradient italic font-light">learning</span>
+            Certificates &amp; <span className="text-anime italic font-light">learning</span>
           </motion.h2>
           <div className="h-px w-32 bg-gradient-to-r from-transparent via-primary/60 to-transparent mx-auto" />
         </div>
@@ -58,7 +58,7 @@ export function CertificatesSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="group relative glass gradient-border rounded-3xl overflow-hidden hover:bg-foreground/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10"
+              className="group relative glass neon-border rounded-3xl overflow-hidden hover:bg-foreground/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10"
             >
               <div className="relative h-44 overflow-hidden">
                 <img
@@ -81,7 +81,7 @@ export function CertificatesSection() {
                   </span>
                 </div>
 
-                <h3 className="font-semibold text-base mb-5 text-foreground group-hover:text-gradient transition-colors leading-snug">
+                <h3 className="font-semibold text-base mb-5 text-foreground group-hover:text-anime transition-colors leading-snug">
                   {cert.title}
                 </h3>
 

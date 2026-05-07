@@ -14,11 +14,11 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "MIKO AJI | Systems Architect & Middleware Engineer",
+  title: "MIKO AJI | AI Native Engineer",
   description:
-    "Expert Software Engineer with 6+ years experience in Banking Middleware (IBM ACE/MQ), Go (Golang), and React. Building high-performance mission-critical systems.",
+    "AI Native Engineer with 6+ years experience in Banking Middleware (IBM ACE/MQ), Go (Golang), and React. Building high-performance mission-critical systems.",
   generator: "Next.js",
-  keywords: ["Systems Architect", "Middleware Engineer", "IBM ACE", "IBM MQ", "Golang", "Go Developer", "Banking Systems", "Microservices", "React"],
+  keywords: ["AI Native Engineer", "Middleware Engineer", "IBM ACE", "IBM MQ", "Golang", "Go Developer", "Banking Systems", "Microservices", "React"],
   authors: [{ name: "Miko Aji Nurachman" }],
   icons: {
     icon: "/favicon.svg",
