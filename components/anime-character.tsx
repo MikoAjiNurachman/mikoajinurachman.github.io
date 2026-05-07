@@ -297,12 +297,44 @@ function GltfCharacter({
     }
   }, [vrm, gltf, pose, url])
 
+  // One-time: silence the mouth on load so the model doesn't "mangap-mangap"
+  // (some VRMs ship with non-zero default expressions, esp. the lip-sync
+  // visemes "aa", "ih", "ou", "ee", "oh"). Also disable expression auto-update
+  // so they can't be re-driven by anything internal.
+  useEffect(() => {
+    if (!vrm) return
+    const em = vrm.expressionManager
+    if (!em) return
+    for (const name of ["aa", "ih", "ou", "ee", "oh", "neutral"] as const) {
+      try {
+        em.setValue(name, 0)
+      } catch {
+        /* expression doesn't exist on this model — ignore */
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(em as any).autoUpdate = false
+    em.update()
+  }, [vrm])
+
   // Per-frame: only update VRM internals (spring bones, look-at, etc).
   // The pose itself is set on the normalized humanoid in useEffect below
   // and persists because autoUpdateHumanBones = true (default) copies
-  // normalized → raw each update().
+  // normalized → raw each update(). Mouth visemes are zeroed every frame
+  // as a belt-and-suspenders against any auto-driven lip-sync.
   useFrame((_, delta) => {
-    if (vrm) vrm.update(delta)
+    if (!vrm) return
+    vrm.update(delta)
+    const em = vrm.expressionManager
+    if (em) {
+      for (const name of ["aa", "ih", "ou", "ee", "oh"] as const) {
+        try {
+          em.setValue(name, 0)
+        } catch {
+          /* ignore missing */
+        }
+      }
+    }
   })
 
   // Use vrm.scene if present, otherwise the raw glTF scene
