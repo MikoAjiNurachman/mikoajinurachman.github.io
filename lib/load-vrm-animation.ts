@@ -1,58 +1,134 @@
 import * as THREE from "three"
 import type { VRM, VRMHumanBoneName } from "@pixiv/three-vrm"
 
-// Mixamo bone name → VRM humanoid bone name. Covers the bones a sitting / idle
-// animation actually drives; fingers are intentionally skipped (sitting clips
-// from Mixamo rarely animate them and we don't want them overriding the VRM
-// rest pose).
-const mixamoVRMRigMap: Record<string, VRMHumanBoneName> = {
+// ───────── Bone name mapping tables ─────────
+// Different rigs name their bones differently. We try several conventions in
+// order so the same retargeter works whether the FBX came from Mixamo, a
+// VRoid export, a Blender re-export, or a Mixamo-rigged custom skeleton.
+
+// Mixamo (Adobe / Mixamo.com export).
+const MIXAMO_MAP: Record<string, VRMHumanBoneName> = {
   mixamorigHips: "hips",
   mixamorigSpine: "spine",
   mixamorigSpine1: "chest",
   mixamorigSpine2: "upperChest",
   mixamorigNeck: "neck",
   mixamorigHead: "head",
-
   mixamorigLeftShoulder: "leftShoulder",
   mixamorigLeftArm: "leftUpperArm",
   mixamorigLeftForeArm: "leftLowerArm",
   mixamorigLeftHand: "leftHand",
-
   mixamorigRightShoulder: "rightShoulder",
   mixamorigRightArm: "rightUpperArm",
   mixamorigRightForeArm: "rightLowerArm",
   mixamorigRightHand: "rightHand",
-
   mixamorigLeftUpLeg: "leftUpperLeg",
   mixamorigLeftLeg: "leftLowerLeg",
   mixamorigLeftFoot: "leftFoot",
   mixamorigLeftToeBase: "leftToes",
-
   mixamorigRightUpLeg: "rightUpperLeg",
   mixamorigRightLeg: "rightLowerLeg",
   mixamorigRightFoot: "rightFoot",
   mixamorigRightToeBase: "rightToes",
 }
 
-const VRM_HUMAN_BONE_NAMES = new Set<VRMHumanBoneName>(
-  Object.values(mixamoVRMRigMap),
-)
+// VRoid Studio convention — what character1.vrm itself almost certainly uses
+// internally, and what a Blender FBX export usually preserves.
+const VROID_MAP: Record<string, VRMHumanBoneName> = {
+  J_Bip_C_Hips: "hips",
+  J_Bip_C_Spine: "spine",
+  J_Bip_C_Chest: "chest",
+  J_Bip_C_UpperChest: "upperChest",
+  J_Bip_C_Neck: "neck",
+  J_Bip_C_Head: "head",
+  J_Bip_L_Shoulder: "leftShoulder",
+  J_Bip_L_UpperArm: "leftUpperArm",
+  J_Bip_L_LowerArm: "leftLowerArm",
+  J_Bip_L_Hand: "leftHand",
+  J_Bip_R_Shoulder: "rightShoulder",
+  J_Bip_R_UpperArm: "rightUpperArm",
+  J_Bip_R_LowerArm: "rightLowerArm",
+  J_Bip_R_Hand: "rightHand",
+  J_Bip_L_UpperLeg: "leftUpperLeg",
+  J_Bip_L_LowerLeg: "leftLowerLeg",
+  J_Bip_L_Foot: "leftFoot",
+  J_Bip_L_ToeBase: "leftToes",
+  J_Bip_R_UpperLeg: "rightUpperLeg",
+  J_Bip_R_LowerLeg: "rightLowerLeg",
+  J_Bip_R_Foot: "rightFoot",
+  J_Bip_R_ToeBase: "rightToes",
+}
 
-// Resolve a track's source bone name (the part before the first '.') to a VRM
-// humanoid bone name. Tries the Mixamo map first; if the FBX was exported with
-// already-VRM bone names (e.g. rigged in Blender against the character1 rig),
-// fall back to a direct match.
+// PascalCase generic — common when re-exported from Blender / various engines.
+const GENERIC_PASCAL_MAP: Record<string, VRMHumanBoneName> = {
+  Hips: "hips",
+  Spine: "spine",
+  Chest: "chest",
+  UpperChest: "upperChest",
+  Neck: "neck",
+  Head: "head",
+  LeftShoulder: "leftShoulder",
+  LeftUpperArm: "leftUpperArm",
+  LeftLowerArm: "leftLowerArm",
+  LeftHand: "leftHand",
+  RightShoulder: "rightShoulder",
+  RightUpperArm: "rightUpperArm",
+  RightLowerArm: "rightLowerArm",
+  RightHand: "rightHand",
+  LeftUpperLeg: "leftUpperLeg",
+  LeftLowerLeg: "leftLowerLeg",
+  LeftFoot: "leftFoot",
+  LeftToes: "leftToes",
+  RightUpperLeg: "rightUpperLeg",
+  RightLowerLeg: "rightLowerLeg",
+  RightFoot: "rightFoot",
+  RightToes: "rightToes",
+}
+
+const VRM_HUMAN_BONE_NAMES = new Set<VRMHumanBoneName>([
+  ...Object.values(MIXAMO_MAP),
+])
+
 function resolveVrmBoneName(rawName: string): VRMHumanBoneName | null {
-  const mapped = mixamoVRMRigMap[rawName]
-  if (mapped) return mapped
-  if (VRM_HUMAN_BONE_NAMES.has(rawName as VRMHumanBoneName)) {
-    return rawName as VRMHumanBoneName
+  // Some exporters prefix bones with the armature, e.g. "Armature|J_Bip_C_Hips"
+  // — strip everything before the last separator before lookup.
+  const stripped = rawName.split(/[|:]/).pop() ?? rawName
+
+  return (
+    MIXAMO_MAP[stripped] ??
+    VROID_MAP[stripped] ??
+    GENERIC_PASCAL_MAP[stripped] ??
+    (VRM_HUMAN_BONE_NAMES.has(stripped as VRMHumanBoneName)
+      ? (stripped as VRMHumanBoneName)
+      : null)
+  )
+}
+
+// Pick the source hips bone by trying each known convention. Used to compute
+// the hip-height ratio for translation scaling.
+function findSourceHips(asset: THREE.Group): THREE.Object3D | null {
+  for (const candidate of [
+    "mixamorigHips",
+    "J_Bip_C_Hips",
+    "Hips",
+    "hips",
+    "Armature|Hips",
+  ]) {
+    const node = asset.getObjectByName(candidate)
+    if (node) return node
   }
-  return null
+  // Last resort: walk the tree for any object whose stripped name resolves to
+  // "hips" via our resolver.
+  let found: THREE.Object3D | null = null
+  asset.traverse((obj) => {
+    if (found || !obj.name) return
+    if (resolveVrmBoneName(obj.name) === "hips") found = obj
+  })
+  return found
 }
 
 /**
- * Retarget animations from a Mixamo-style FBX onto a VRM humanoid skeleton.
+ * Retarget animations from an FBX humanoid clip onto a VRM humanoid skeleton.
  *
  * Returns a new THREE.AnimationClip whose tracks reference VRM bone node names
  * — feed it directly to an AnimationMixer bound to `vrm.scene`.
@@ -67,17 +143,20 @@ export function retargetFbxToVrm(
   vrm: VRM,
 ): THREE.AnimationClip | null {
   const sourceClip = asset.animations[0]
-  if (!sourceClip) return null
+  if (!sourceClip) {
+    console.warn("[retargetFbxToVrm] FBX has no animation clips")
+    return null
+  }
 
   const tracks: THREE.KeyframeTrack[] = []
+  const seenBones = new Set<string>()
+  const mappedBones = new Set<string>()
 
   const restRotationInverse = new THREE.Quaternion()
   const parentRestWorldRotation = new THREE.Quaternion()
   const tmpQuat = new THREE.Quaternion()
 
-  // Hips height ratio — lets us scale the source's hip translation track so
-  // the character doesn't sink through the floor / float in the air.
-  const sourceHips = asset.getObjectByName("mixamorigHips") ?? asset.getObjectByName("Hips")
+  const sourceHips = findSourceHips(asset)
   const motionHipsHeight = sourceHips?.position.y ?? 1
   const vrmHipsNode = vrm.humanoid?.getNormalizedBoneNode("hips")
   const vrmHipsWorldY =
@@ -90,6 +169,8 @@ export function retargetFbxToVrm(
 
   for (const sourceTrack of sourceClip.tracks) {
     const [rawName, property] = sourceTrack.name.split(".")
+    seenBones.add(rawName)
+
     const vrmBoneName = resolveVrmBoneName(rawName)
     if (!vrmBoneName) continue
 
@@ -98,6 +179,8 @@ export function retargetFbxToVrm(
 
     const sourceBoneNode = asset.getObjectByName(rawName)
     if (!sourceBoneNode) continue
+
+    mappedBones.add(rawName)
 
     sourceBoneNode.getWorldQuaternion(restRotationInverse).invert()
     sourceBoneNode.parent?.getWorldQuaternion(parentRestWorldRotation)
@@ -126,8 +209,6 @@ export function retargetFbxToVrm(
         ),
       )
     } else if (sourceTrack instanceof THREE.VectorKeyframeTrack) {
-      // Only hips position drives root motion; other VRM bones don't have
-      // animatable translation, so skip them.
       if (vrmBoneName !== "hips" || property !== "position") continue
       const values = sourceTrack.values.map((v, i) => {
         const flipped = isVRM0 && i % 3 !== 1 ? -v : v
@@ -143,7 +224,20 @@ export function retargetFbxToVrm(
     }
   }
 
-  if (tracks.length === 0) return null
+  if (tracks.length === 0) {
+    console.warn(
+      "[retargetFbxToVrm] No tracks retargeted. Source bone names found in clip:",
+      Array.from(seenBones).sort(),
+    )
+    return null
+  }
 
-  return new THREE.AnimationClip(sourceClip.name || "vrm-clip", sourceClip.duration, tracks)
+  console.info(
+    `[retargetFbxToVrm] Retargeted ${tracks.length} tracks across ${mappedBones.size} bones.`,
+  )
+  return new THREE.AnimationClip(
+    sourceClip.name || "vrm-clip",
+    sourceClip.duration,
+    tracks,
+  )
 }

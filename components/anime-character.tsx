@@ -1,11 +1,39 @@
 "use client"
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from "react"
-import { useFrame } from "@react-three/fiber"
-import { Float, useFBX, useGLTF } from "@react-three/drei"
+import { useFrame, useLoader } from "@react-three/fiber"
+import { Float, useGLTF } from "@react-three/drei"
 import * as THREE from "three"
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js"
 import { VRMLoaderPlugin, VRMUtils, type VRM } from "@pixiv/three-vrm"
 import { retargetFbxToVrm } from "@/lib/load-vrm-animation"
+
+// 1×1 transparent PNG. Used to short-circuit texture fetches inside animation
+// FBXs that embed absolute Windows paths (e.g. C:\Users\...\character.fbm\*).
+// We only want the FBX's AnimationClip; meshes/materials get discarded.
+const TRANSPARENT_PIXEL =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgAAIAAAUAAarVyFEAAAAASUVORK5CYII="
+
+// Custom FBX hook that suppresses any embedded absolute / .fbm texture refs
+// before they hit the network. Returns a Suspense-suspending Group like useFBX.
+function useAnimationFBX(url: string): THREE.Group {
+  return useLoader(FBXLoader, url, (loader) => {
+    const manager = new THREE.LoadingManager()
+    manager.setURLModifier((u) => {
+      // Match: drive-letter absolute paths anywhere in the URL, or any .fbm
+      // texture-cache directory. The FBXLoader resolves embedded paths
+      // relative to the FBX file, producing nonsense URLs we don't want to hit.
+      if (/\/[A-Za-z]:\//.test(u) || /^[A-Za-z]:[\\/]/.test(u) || u.includes(".fbm/")) {
+        return TRANSPARENT_PIXEL
+      }
+      return u
+    })
+    // FBXLoader uses its own .manager for sub-loaders (TextureLoader etc.).
+    // Replacing it before parse routes those through our URL modifier.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(loader as any).manager = manager
+  }) as THREE.Group
+}
 
 /**
  * AnimeCharacter
@@ -29,6 +57,7 @@ type PoseName = "idle" | "point" | "pointRight" | "wave" | "peace" | "tpose"
 
 type CharacterProps = {
   position?: [number, number, number]
+  rotation?: [number, number, number]
   scale?: number
   /** Override the model file path. If unset, probes the defaults. */
   model?: string
@@ -250,7 +279,7 @@ function VrmAnimationDriver({
   url: string
   mixerRef: React.RefObject<THREE.AnimationMixer | null>
 }) {
-  const fbx = useFBX(url)
+  const fbx = useAnimationFBX(url)
 
   useEffect(() => {
     if (!fbx) return
@@ -282,6 +311,7 @@ function VrmAnimationDriver({
 function GltfCharacter({
   url,
   position = [0, -1.2, 0],
+  rotation,
   scale = 1.4,
   pose = "idle",
   animationUrl,
@@ -405,13 +435,18 @@ function GltfCharacter({
 
   // Float removed for VRM characters — the wrapper bob was making the
   // skinned face/lips wobble enough to read as "mouth moving".
+  // Rotation lives inside the position-bearing wrapper so the character pivots
+  // in place — applying it on the outer group would orbit the character around
+  // world origin (visually shifting its position when rotation is non-zero).
   return (
     <group ref={wrapperRef} position={position} scale={scale} {...handlers}>
-      <group ref={innerRef}>
-        <primitive object={sceneToRender} />
-        {vrm && animationUrl && (
-          <VrmAnimationDriver vrm={vrm} url={animationUrl} mixerRef={mixerRef} />
-        )}
+      <group rotation={rotation}>
+        <group ref={innerRef}>
+          <primitive object={sceneToRender} />
+          {vrm && animationUrl && (
+            <VrmAnimationDriver vrm={vrm} url={animationUrl} mixerRef={mixerRef} />
+          )}
+        </group>
       </group>
     </group>
   )
@@ -644,6 +679,7 @@ function ChibiCharacter({
 // ───────── Public component ─────────
 export function AnimeCharacter({
   position,
+  rotation,
   scale,
   model,
   pose,
@@ -690,6 +726,7 @@ export function AnimeCharacter({
           <GltfCharacter
             url={modelUrl}
             position={position}
+            rotation={rotation}
             scale={scale}
             pose={pose}
             animationUrl={animationUrl}

@@ -22,6 +22,7 @@ function AboutScene() {
         model="/models/character1.vrm"
         animationUrl="/models/Sitting-character1.fbx"
         position={[0, -1.8, 0]}
+        rotation={[-0.4, 0, 0]}
         scale={2.8}
         noFallback
       />

@@ -93,16 +93,18 @@ function HeroScene() {
           different model briefly before the VRM finishes loading. */}
       <AnimeCharacter
         model="/models/character.vrm"
+        animationUrl="/models/Female Laying Pose-left.fbx"
         position={[-3.6, -1.6, 0]}
+        rotation={[ -0.5, 0.9, 0.2]}
         scale={0.8}
-        pose="point"
         noFallback
       />
       <AnimeCharacter
         model="/models/character.vrm?n=2"
+        animationUrl="/models/Hand Raising-right.fbx"
         position={[3.6, -1.6, 0]}
+        rotation={[-0.25, -0.3, 0]}
         scale={0.8}
-        pose="pointRight"
         noFallback
       />
 
