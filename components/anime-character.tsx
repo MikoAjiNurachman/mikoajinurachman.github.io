@@ -2,9 +2,10 @@
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import { useFrame } from "@react-three/fiber"
-import { Float, useGLTF } from "@react-three/drei"
+import { Float, useFBX, useGLTF } from "@react-three/drei"
 import * as THREE from "three"
 import { VRMLoaderPlugin, VRMUtils, type VRM } from "@pixiv/three-vrm"
+import { retargetFbxToVrm } from "@/lib/load-vrm-animation"
 
 /**
  * AnimeCharacter
@@ -31,8 +32,12 @@ type CharacterProps = {
   scale?: number
   /** Override the model file path. If unset, probes the defaults. */
   model?: string
-  /** Pose preset for VRM models (no effect on plain GLB). */
+  /** Pose preset for VRM models (no effect on plain GLB). Ignored when
+      animationUrl is set — the animation drives the bones instead. */
   pose?: PoseName
+  /** Optional FBX (Mixamo-style) animation to retarget onto the VRM
+      humanoid skeleton. Plays on a loop. */
+  animationUrl?: string
   /** Force the chibi (skip GLTF loading entirely). */
   forceChibi?: boolean
   /** Skip the chibi fallback. While the GLTF/VRM is loading or on
@@ -232,15 +237,58 @@ function useCharacterInteraction(
   return { handlers, hovered }
 }
 
+// ───────── FBX animation loader (mounted only when animationUrl is set) ─────────
+// Loads the FBX, retargets its first AnimationClip onto the VRM humanoid
+// skeleton, and starts a looping mixer action. Cleans up on unmount / when
+// inputs change. Rendered as a sibling of the VRM <primitive>; renders nothing.
+function VrmAnimationDriver({
+  vrm,
+  url,
+  mixerRef,
+}: {
+  vrm: VRM
+  url: string
+  mixerRef: React.RefObject<THREE.AnimationMixer | null>
+}) {
+  const fbx = useFBX(url)
+
+  useEffect(() => {
+    if (!fbx) return
+    const clip = retargetFbxToVrm(fbx, vrm)
+    if (!clip) {
+      console.warn(
+        `[AnimeCharacter] FBX at ${url} produced no retargeted tracks — bone names may not match Mixamo or VRM humanoid conventions.`,
+      )
+      return
+    }
+    const mixer = new THREE.AnimationMixer(vrm.scene)
+    const action = mixer.clipAction(clip)
+    action.setLoop(THREE.LoopRepeat, Infinity)
+    action.play()
+    mixerRef.current = mixer
+
+    return () => {
+      action.stop()
+      mixer.stopAllAction()
+      mixer.uncacheClip(clip)
+      mixerRef.current = null
+    }
+  }, [fbx, vrm, url, mixerRef])
+
+  return null
+}
+
 // ───────── Real GLTF / VRM loader ─────────
 function GltfCharacter({
   url,
   position = [0, -1.2, 0],
   scale = 1.4,
   pose = "idle",
+  animationUrl,
 }: { url: string } & CharacterProps) {
   const wrapperRef = useRef<THREE.Group>(null)
   const innerRef = useRef<THREE.Group>(null)
+  const mixerRef = useRef<THREE.AnimationMixer | null>(null)
   const { handlers } = useCharacterInteraction(wrapperRef, position, scale)
 
   // Register the VRM plugin on the underlying GLTFLoader so .vrm files get
@@ -269,10 +317,14 @@ function GltfCharacter({
     if (vrm.meta?.metaVersion === "0") {
       VRMUtils.rotateVRM0(vrm)
     }
-    applyVrmPose(vrm, pose)
+    // Skip static pose when an FBX animation is driving the bones — the clip
+    // owns rotations frame-by-frame and a static pose would just be overwritten.
+    if (!animationUrl) {
+      applyVrmPose(vrm, pose)
+    }
     vrm.update(0)
 
-  }, [vrm, gltf, pose, url])
+  }, [vrm, gltf, pose, url, animationUrl])
 
   // One-time: silence everything that can move the face — expressions,
   // lookAt (eye tracking), and spring bone physics. Mouth morphs are
@@ -297,9 +349,10 @@ function GltfCharacter({
     if (sbm) sbm.autoUpdate = false
   }, [vrm])
 
-  // Per-frame: update VRM internals + force-silence the mouth.
+  // Per-frame: advance any active animation, update VRM internals + force-silence the mouth.
   useFrame((_, delta) => {
     if (!vrm) return
+    mixerRef.current?.update(delta)
     vrm.update(delta)
 
     const em = vrm.expressionManager
@@ -356,6 +409,9 @@ function GltfCharacter({
     <group ref={wrapperRef} position={position} scale={scale} {...handlers}>
       <group ref={innerRef}>
         <primitive object={sceneToRender} />
+        {vrm && animationUrl && (
+          <VrmAnimationDriver vrm={vrm} url={animationUrl} mixerRef={mixerRef} />
+        )}
       </group>
     </group>
   )
@@ -591,6 +647,7 @@ export function AnimeCharacter({
   scale,
   model,
   pose,
+  animationUrl,
   forceChibi,
   noFallback,
 }: CharacterProps = {}) {
@@ -630,7 +687,13 @@ export function AnimeCharacter({
     return (
       <ModelErrorBoundary fallback={fallback} onError={() => setModelUrl(null)}>
         <Suspense fallback={fallback}>
-          <GltfCharacter url={modelUrl} position={position} scale={scale} pose={pose} />
+          <GltfCharacter
+            url={modelUrl}
+            position={position}
+            scale={scale}
+            pose={pose}
+            animationUrl={animationUrl}
+          />
         </Suspense>
       </ModelErrorBoundary>
     )

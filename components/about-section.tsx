@@ -14,14 +14,15 @@ function AboutScene() {
       <pointLight position={[-5, -5, -3]} color="#5b8bff" intensity={0.8} />
       <pointLight position={[5, -3, 4]} color="#a8e6ff" intensity={0.6} />
 
-      {/* character1.vrm — sitting peace pose, no decorative particles around.
+      {/* character1.vrm driven by the Sitting-character1.fbx clip — animation
+          retargets onto the VRM humanoid skeleton at runtime.
           noFallback: skip chibi placeholder so refresh doesn't show a flash
           of the wrong character. */}
       <AnimeCharacter
         model="/models/character1.vrm"
+        animationUrl="/models/Sitting-character1.fbx"
         position={[0, -1.8, 0]}
         scale={2.8}
-        pose="peace"
         noFallback
       />
     </>

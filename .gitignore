@@ -39,3 +39,4 @@ next-env.d.ts
 # Claude Code session / worktree state
 .claude
 
+character.temp*
