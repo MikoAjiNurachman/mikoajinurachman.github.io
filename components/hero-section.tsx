@@ -1,6 +1,6 @@
 "use client"
 
-import { Canvas, useFrame } from "@react-three/fiber"
+import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import { Sparkles, Trail } from "@react-three/drei"
 import { Github, Linkedin, Mail, ChevronDown, Zap } from "lucide-react"
 import { Suspense, useRef } from "react"
@@ -78,6 +78,30 @@ function OrbitingShard({
 }
 
 function HeroScene() {
+  // Continuous responsive sizing — no binary compact/standard breakpoint, so
+  // there's no viewport range where the layout suddenly clips. Everything
+  // scales smoothly with viewport.width (in world units, FOV-aware).
+  const { viewport } = useThree()
+  const halfW = viewport.width / 2
+
+  // Scale: grows with viewport up to the desktop ceiling 0.8.
+  const charScale = THREE.MathUtils.clamp(viewport.width * 0.085, 0.3, 0.8)
+
+  // Edge-hugging horizontal: position at halfW minus a buffer that covers the
+  // laying-pose's lateral extent. Capped at 3.6 so widescreen monitors don't
+  // push the chars all the way to the edges.
+  const lateralBuffer = charScale * 1.0 + 0.2
+  const charX = Math.max(0.6, Math.min(halfW - lateralBuffer, 3.6))
+
+  // Vertical: smooth transition from -2.0 (narrow, below rings) to -1.6
+  // (wide, standard flank position). Smoothstep gives a soft curve so there's
+  // no visible "jump" at any viewport width.
+  const charY = THREE.MathUtils.lerp(
+    -2.0,
+    -1.6,
+    THREE.MathUtils.smoothstep(viewport.width, 5, 9),
+  )
+
   return (
     <>
       <ambientLight intensity={0.35} />
@@ -94,17 +118,17 @@ function HeroScene() {
       <AnimeCharacter
         model="/models/character.vrm"
         animationUrl="/models/Female Laying Pose-left.fbx"
-        position={[-3.6, -1.6, 0]}
+        position={[-charX, charY, 0]}
         rotation={[ -0.5, 0.9, 0.2]}
-        scale={0.8}
+        scale={charScale}
         noFallback
       />
       <AnimeCharacter
         model="/models/character.vrm?n=2"
         animationUrl="/models/Hand Raising-right.fbx"
-        position={[3.6, -1.6, 0]}
+        position={[charX, charY, 0]}
         rotation={[-0.25, -0.3, 0]}
-        scale={0.8}
+        scale={charScale}
         noFallback
       />
 
@@ -144,8 +168,10 @@ export function HeroSection() {
       id="home"
       className="relative min-h-screen w-full flex items-center justify-center overflow-hidden grain pt-36 pb-12 md:pt-44 md:pb-16"
     >
-      {/* 3D layer */}
-      <div className="absolute inset-0 z-0">
+      {/* 3D layer — z-10 so the canvas (and the bottom-anchored characters in
+          compact mode) sit above the bottom-fade overlay (z-0), but still
+          below the foreground content (z-20). */}
+      <div className="absolute inset-0 z-10">
         <Canvas camera={{ position: [0, 0, 6], fov: 45 }} dpr={[1, 1.6]}>
           <Suspense fallback={null}>
             <HeroScene />
@@ -163,7 +189,7 @@ export function HeroSection() {
           on the 3D character behind. Interactive children re-enable pointer
           events with pointer-events-auto. */}
       <motion.div
-        className="relative z-10 text-center px-6 max-w-4xl pointer-events-none"
+        className="relative z-20 text-center px-6 max-w-4xl pointer-events-none"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -247,8 +273,10 @@ export function HeroSection() {
         </motion.div>
       </motion.div>
 
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background via-background/60 to-transparent z-10 pointer-events-none" />
+      {/* Bottom fade — z-0 (below canvas at z-5) so it doesn't obscure
+          characters anchored to the bottom of the canvas in compact mode.
+          The fade still shows through the canvas's transparent regions. */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background via-background/60 to-transparent z-0 pointer-events-none" />
     </section>
   )
 }

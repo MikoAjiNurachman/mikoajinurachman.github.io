@@ -1,11 +1,22 @@
 "use client"
 
-import { Canvas } from "@react-three/fiber"
+import { Canvas, useThree } from "@react-three/fiber"
 import { Suspense } from "react"
 import { motion } from "framer-motion"
+import * as THREE from "three"
 import { AnimeCharacter } from "@/components/anime-character"
 
 function AboutScene() {
+  // Continuous responsive sizing based on actual viewport in world units.
+  // Canvas height varies (420 / 520 / 620 px across breakpoints) → derive
+  // scale + position so the character fits without clipping at the bottom.
+  const { viewport } = useThree()
+  const halfH = viewport.height / 2
+  const charScale = THREE.MathUtils.clamp(viewport.height * 0.6, 1.6, 2.8)
+  // Keep feet just inside the visible bottom: y > -halfH + footRoom.
+  const footRoom = charScale * 0.7
+  const minYToFit = -halfH + footRoom
+  const charY = Math.max(minYToFit, -1.8)
   return (
     <>
       <ambientLight intensity={0.6} />
@@ -21,9 +32,9 @@ function AboutScene() {
       <AnimeCharacter
         model="/models/character1.vrm"
         animationUrl="/models/Sitting-character1.fbx"
-        position={[0, -1.8, 0]}
+        position={[0, charY, 0]}
         rotation={[-0.4, 0, 0]}
-        scale={2.8}
+        scale={charScale}
         noFallback
       />
     </>
