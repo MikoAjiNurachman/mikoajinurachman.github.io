@@ -1,7 +1,20 @@
 "use client"
 
-import { Award, ExternalLink, Calendar, CheckCircle } from "lucide-react"
+import { ArrowUpRight } from "lucide-react"
 import { motion } from "framer-motion"
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
+  },
+}
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+}
 
 const certificates = [
   {
@@ -34,75 +47,64 @@ const certificates = [
   },
 ]
 
+// Apple dark tile — 4-column accessory-grid pattern: 1:1 image card with
+// hairline border, image at sm radius, body labels below.
 export function CertificatesSection() {
   return (
-    <section id="certificates" className="py-28 sm:py-36 px-6 relative">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-semibold mb-4 tracking-tight"
-          >
-            Certificates &amp; <span className="text-anime italic font-light">learning</span>
-          </motion.h2>
-          <div className="h-px w-32 bg-gradient-to-r from-transparent via-primary/60 to-transparent mx-auto" />
-        </div>
+    <section
+      id="certificates"
+      className="tile-dark dark relative w-full py-20 md:py-28 px-6"
+    >
+      <motion.div
+        className="max-w-[1180px] mx-auto"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+        variants={stagger}
+      >
+        <motion.div variants={fadeUp} className="mb-14 md:mb-20 max-w-[720px]">
+          <p className="type-eyebrow text-[var(--apple-on-dark-muted)] mb-4">
+            Credentials · 05
+          </p>
+          <h2 className="type-display-lg text-white mb-5">
+            Certificates and continuous learning.
+          </h2>
+          <p className="type-lead-airy text-[var(--apple-on-dark-muted)]">
+            Programs and platforms I've completed to stay sharp.
+          </p>
+        </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
           {certificates.map((cert, index) => (
-            <motion.div
+            <motion.a
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="group relative glass neon-border rounded-3xl overflow-hidden hover:bg-foreground/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10"
+              variants={fadeUp}
+              href={cert.credentialUrl}
+              className="card-utility !p-5 flex flex-col group"
             >
-              <div className="relative h-44 overflow-hidden">
+              {/* Image with the system's 8px radius (inner image radius). */}
+              <div className="relative aspect-square w-full overflow-hidden rounded-[var(--radius-sm)] bg-black/40 mb-5">
                 <img
                   src={cert.image}
                   alt={cert.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-card/95 via-card/30 to-transparent" />
-
-                <div className="absolute top-3 right-3 p-2 rounded-2xl glass-strong">
-                  <Award className="w-4 h-4 text-primary" />
-                </div>
               </div>
 
-              <div className="p-6 -mt-2 relative">
-                <div className="flex items-center gap-2 mb-3">
-                  <CheckCircle className="w-3.5 h-3.5 text-accent" />
-                  <span className="text-[10px] font-bold text-foreground/60 uppercase tracking-[0.2em]">
-                    {cert.issuer}
-                  </span>
-                </div>
-
-                <h3 className="font-semibold text-base mb-5 text-foreground group-hover:text-anime transition-colors leading-snug">
-                  {cert.title}
-                </h3>
-
-                <div className="flex items-center justify-between pt-4 border-t border-foreground/8">
-                  <div className="flex items-center gap-1.5 text-xs font-mono text-foreground/50">
-                    <Calendar className="w-3 h-3" />
-                    {cert.date}
-                  </div>
-                  <a
-                    href={cert.credentialUrl}
-                    className="p-2 rounded-full hover:bg-primary/10 text-primary transition-all duration-300"
-                    aria-label="View credential"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                </div>
-              </div>
-            </motion.div>
+              <p className="type-caption text-[var(--apple-on-dark-muted)] mb-2">
+                {cert.issuer} · {cert.date}
+              </p>
+              <h3 className="type-body-strong text-white mb-4 flex-grow leading-snug">
+                {cert.title}
+              </h3>
+              <span className="text-link-apple type-caption-strong">
+                View credential
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </span>
+            </motion.a>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   )
 }

@@ -1,8 +1,19 @@
 "use client"
 
-import { Calendar } from "lucide-react"
 import { motion } from "framer-motion"
-import { cn } from "@/lib/utils"
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
+  },
+}
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+}
 
 const experiences = [
   {
@@ -42,130 +53,85 @@ const experiences = [
   },
 ]
 
+// Apple dark tile — alternating from the previous parchment about-section
+// to a near-black surface, providing the section divider through color
+// change alone. Inline content: eyebrow, display-lg headline, stack of
+// utility cards (one per role).
 export function ExperienceSection() {
   return (
-    <section id="experience" className="py-28 sm:py-36 px-6 overflow-hidden relative">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass neon-border text-[10px] font-bold uppercase tracking-[0.28em] text-primary mb-5"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            Timeline / 02
-          </motion.div>
-          <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 tracking-tight"
-          >
-            Professional <span className="text-anime italic font-light">journey</span>
-          </motion.h2>
-          <div className="h-px w-32 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
-        </div>
+    <section
+      id="experience"
+      className="tile-dark dark relative w-full py-20 md:py-28 px-6"
+    >
+      <motion.div
+        className="max-w-[1180px] mx-auto"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+        variants={stagger}
+      >
+        <motion.div variants={fadeUp} className="mb-14 md:mb-20 max-w-[720px]">
+          <p className="type-eyebrow text-[var(--apple-on-dark-muted)] mb-4">
+            Timeline · 02
+          </p>
+          <h2 className="type-display-lg text-white mb-5">
+            Professional journey.
+          </h2>
+          <p className="type-lead-airy text-[var(--apple-on-dark-muted)]">
+            Six years across banking middleware, fraud detection, and FMCG-scale microservices.
+          </p>
+        </motion.div>
 
-        <div className="relative">
-          {/* Energy vertical line */}
-          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-gradient-to-b from-primary via-accent to-tertiary/0 md:-translate-x-1/2 [box-shadow:0_0_20px_oklch(0.78_0.18_220/0.5)]" />
-
-          <div className="space-y-14">
-            {experiences.map((exp, index) => (
-              <div key={index} className="relative flex flex-col md:flex-row items-center justify-between">
-                <motion.div
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  className={cn(
-                    "w-full md:w-[46%] mb-8 md:mb-0 pl-12 md:pl-0",
-                    index % 2 === 0 ? "md:order-1 md:text-right" : "md:order-3 md:text-left md:ml-auto"
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "group p-6 sm:p-8 rounded-3xl glass neon-border hover:neon-glow transition-all duration-500 hover:-translate-y-1",
-                      index % 2 === 0 ? "md:mr-4" : "md:ml-4"
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "flex flex-col gap-2 mb-5",
-                        index % 2 === 0 ? "md:items-end" : "md:items-start"
-                      )}
-                    >
-                      <div className="flex items-center gap-2 text-primary/90 font-mono text-[10px] tracking-[0.2em] uppercase">
-                        <Calendar className="w-3 h-3" />
-                        {exp.period}
-                      </div>
-                      <h3 className="text-xl sm:text-2xl font-bold text-foreground group-hover:text-anime transition-colors">
-                        {exp.title}
-                      </h3>
-                      <p className="text-sm font-medium text-foreground/70">{exp.company}</p>
-                    </div>
-
-                    <ul
-                      className={cn(
-                        "space-y-2.5 mb-6 text-sm text-foreground/65 leading-relaxed font-light",
-                        index % 2 === 0 ? "md:text-right" : "md:text-left"
-                      )}
-                    >
-                      {exp.description.map((item, i) => (
-                        <li key={i} className="flex gap-2 md:block">
-                          <span
-                            className={cn(
-                              "text-primary md:hidden shrink-0",
-                              index % 2 === 0 ? "order-2" : "order-1"
-                            )}
-                          >
-                            ◆
-                          </span>
-                          <span className="flex-1">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <div
-                      className={cn(
-                        "flex flex-wrap gap-1.5",
-                        index % 2 === 0 ? "md:justify-end" : "md:justify-start"
-                      )}
-                    >
-                      {exp.technologies.map((tech) => (
-                        <span
-                          key={tech}
-                          className="px-2.5 py-1 text-[10px] font-medium tracking-wider bg-primary/8 text-primary/90 rounded-full border border-primary/15"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* Center dot */}
-                <div className="absolute z-10 left-4 md:left-1/2 top-6 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2">
-                  <div className="relative w-4 h-4">
-                    <div className="absolute inset-0 rounded-full bg-primary/30 blur-md animate-pulse" />
-                    <div className="relative w-4 h-4 rounded-full bg-background border border-primary/60 flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-br from-primary to-accent" />
-                    </div>
-                  </div>
+        {/* Stack of utility cards — Apple grammar: hairline border, 18px
+            radius, 24px padding, no shadow. */}
+        <motion.ol variants={stagger} className="space-y-4 md:space-y-5">
+          {experiences.map((exp, index) => (
+            <motion.li key={index} variants={fadeUp} className="card-utility !p-7 md:!p-9">
+              <div className="grid md:grid-cols-[1fr_2fr] gap-6 md:gap-10">
+                {/* Left meta column */}
+                <div>
+                  <p className="type-caption text-[var(--apple-on-dark-muted)] mb-3">
+                    {exp.period}
+                  </p>
+                  <h3 className="type-display-md text-white mb-1">
+                    {exp.title}
+                  </h3>
+                  <p className="type-body-apple text-[var(--apple-primary-on-dark)]">
+                    {exp.company}
+                  </p>
                 </div>
 
-                {/* Spacer */}
-                <div
-                  className={cn(
-                    "hidden md:block w-[46%]",
-                    index % 2 === 0 ? "order-3" : "order-1"
-                  )}
-                />
+                {/* Right content column */}
+                <div>
+                  <ul className="space-y-2.5 type-body-apple text-[var(--apple-on-dark-muted)] mb-5">
+                    {exp.description.map((item, i) => (
+                      <li key={i} className="flex gap-3">
+                        <span className="text-[var(--apple-primary-on-dark)] shrink-0">·</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="flex flex-wrap gap-2">
+                    {exp.technologies.map((tech) => (
+                      <span
+                        key={tech}
+                        className="type-caption text-[var(--apple-on-dark)] bg-white/8 border border-white/10 px-3 py-1 rounded-full"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
+
+              {index !== experiences.length - 1 && (
+                <div className="mt-6 -mx-7 md:-mx-9 border-b border-white/5" />
+              )}
+            </motion.li>
+          ))}
+        </motion.ol>
+      </motion.div>
     </section>
   )
 }

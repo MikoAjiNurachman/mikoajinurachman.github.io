@@ -15,80 +15,79 @@ const navItems = [
   { href: "#contact", label: "Contact" },
 ]
 
+// Apple navbar: ultra-thin black bar pinned to the top, 44px height, nav-link
+// type (12px / 400 / tight tracking). Right-aligned utility actions. No
+// shadow, no border, no rounded corners — the whole bar is the divider.
 export function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50)
-    window.addEventListener("scroll", handleScroll)
+    const handleScroll = () => setIsScrolled(window.scrollY > 8)
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   return (
-    <motion.nav
-      initial={{ y: -40, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-500 flex justify-center",
-        isScrolled ? "py-3 px-4 md:px-12" : "py-6 px-4 md:px-12"
-      )}
-    >
-      <div
+    <>
+      <nav
         className={cn(
-          "w-full max-w-6xl flex items-center justify-between transition-all duration-500 rounded-full",
-          isScrolled
-            ? "glass-strong neon-border px-5 h-14 shadow-2xl shadow-primary/15"
-            : "glass neon-border px-5 h-14"
+          "fixed top-0 left-0 right-0 z-50 nav-global-black h-11 flex items-center justify-center",
+          // Subtle frosted blur once you start scrolling — keeps the bar
+          // present without competing with hero photography.
+          isScrolled && "backdrop-blur-md backdrop-saturate-150",
         )}
       >
-        <a href="#home" className="group flex items-center gap-2.5">
-          <div className="relative w-9 h-9 rounded-xl overflow-hidden neon-border bg-card/50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-accent/30 to-tertiary/40" />
-            <span className="relative text-sm font-bold text-foreground">M</span>
+        <div className="w-full max-w-[1024px] mx-auto px-4 md:px-6 flex items-center justify-between">
+          {/* Logo */}
+          <a href="#home" className="flex items-center type-nav-link text-white hover:text-white/70 transition-colors">
+            <span className="font-semibold tracking-tight text-[15px]">MIKO</span>
+          </a>
+
+          {/* Center nav links */}
+          <div className="hidden md:flex items-center gap-7">
+            {navItems.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="type-nav-link text-white/85 hover:text-white transition-colors"
+              >
+                {item.label}
+              </a>
+            ))}
           </div>
-          <span className="text-lg font-bold tracking-tight text-foreground/95">
-            AJI<span className="text-anime">.</span>
-          </span>
-        </a>
 
-        <div className="hidden md:flex items-center gap-1">
-          {navItems.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="relative px-3.5 py-2 text-[11px] font-medium uppercase tracking-[0.18em] text-foreground/65 hover:text-foreground transition-colors group"
-            >
-              <span className="relative z-10">{item.label}</span>
-              <span className="absolute inset-0 rounded-full bg-primary/10 scale-90 opacity-0 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200" />
-            </a>
-          ))}
+          {/* Right utility (mobile menu trigger) */}
+          <button
+            className="md:hidden text-white p-1"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+
+          {/* Desktop right-aligned spacer to balance logo */}
+          <div className="hidden md:block w-[48px]" />
         </div>
+      </nav>
 
-        <button
-          className="md:hidden p-2 rounded-full glass text-foreground"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-        </button>
-      </div>
-
+      {/* Mobile sheet — drops down from the global bar. Apple style: full-width
+          panel, parchment surface, single-column nav stack. */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.97 }}
-            className="absolute top-20 left-4 right-4 md:hidden glass-strong neon-border rounded-3xl shadow-2xl overflow-hidden z-50"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed top-11 left-0 right-0 z-40 nav-global-black border-t border-white/10 md:hidden"
           >
-            <div className="p-6 flex flex-col gap-1">
+            <div className="px-6 py-4 flex flex-col">
               {navItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
-                  className="text-base font-medium text-foreground/85 hover:text-primary hover:bg-primary/5 transition-colors py-3 px-4 rounded-2xl"
+                  className="type-body-strong text-white/90 hover:text-white py-3 border-b border-white/5 last:border-b-0"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
@@ -98,6 +97,6 @@ export function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </>
   )
 }

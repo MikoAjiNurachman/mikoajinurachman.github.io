@@ -3,85 +3,115 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ───────────────────────────────────────────────────────────────────────
+   Apple Design System
+   Source: getdesign.md/apple/design-md
+   Photography-first, single Action Blue accent, alternating full-bleed
+   tiles, near-invisible UI chrome.
+   ──────────────────────────────────────────────────────────────────────*/
+
 :root {
-  --background: oklch(0.98 0.01 240);
-  --foreground: oklch(0.18 0.04 240);
-  --card: oklch(0.99 0.005 240);
-  --card-foreground: oklch(0.18 0.04 240);
-  --popover: oklch(0.99 0.005 240);
-  --popover-foreground: oklch(0.18 0.04 240);
-  --primary: oklch(0.62 0.20 235);
-  --primary-foreground: oklch(0.99 0.005 240);
-  --secondary: oklch(0.96 0.015 240);
-  --secondary-foreground: oklch(0.18 0.04 240);
-  --muted: oklch(0.96 0.015 240);
-  --muted-foreground: oklch(0.50 0.04 240);
-  --accent: oklch(0.78 0.16 220);
-  --accent-foreground: oklch(0.18 0.04 240);
-  --tertiary: oklch(0.55 0.18 245);
-  --highlight: oklch(0.85 0.12 215);
-  --destructive: oklch(0.62 0.22 25);
-  --destructive-foreground: oklch(0.99 0.005 240);
-  --border: oklch(0.90 0.015 240);
-  --input: oklch(0.90 0.015 240);
-  --ring: oklch(0.62 0.20 235);
-  --chart-1: oklch(0.78 0.18 220);
-  --chart-2: oklch(0.65 0.20 235);
-  --chart-3: oklch(0.55 0.18 245);
-  --chart-4: oklch(0.85 0.12 215);
-  --chart-5: oklch(0.45 0.16 250);
-  --radius: 0.875rem;
-  --sidebar: oklch(0.99 0.005 240);
-  --sidebar-foreground: oklch(0.18 0.04 240);
-  --sidebar-primary: oklch(0.62 0.20 235);
-  --sidebar-primary-foreground: oklch(0.99 0.005 240);
-  --sidebar-accent: oklch(0.96 0.015 240);
-  --sidebar-accent-foreground: oklch(0.18 0.04 240);
-  --sidebar-border: oklch(0.90 0.015 240);
-  --sidebar-ring: oklch(0.62 0.20 235);
+  --apple-primary: #0066cc;
+  --apple-primary-focus: #0071e3;
+  --apple-primary-on-dark: #2997ff;
+
+  --apple-canvas: #ffffff;
+  --apple-parchment: #f5f5f7;
+  --apple-pearl: #fafafc;
+  --apple-tile-1: #272729;
+  --apple-tile-2: #2a2a2c;
+  --apple-tile-3: #252527;
+  --apple-black: #000000;
+  --apple-chip-translucent: rgba(210, 210, 215, 0.64);
+
+  --apple-ink: #1d1d1f;
+  --apple-ink-muted-80: #333333;
+  --apple-ink-muted-48: #7a7a7a;
+  --apple-on-dark: #ffffff;
+  --apple-on-dark-muted: #cccccc;
+
+  --apple-divider-soft: #f0f0f0;
+  --apple-hairline: #e0e0e0;
+  --apple-hairline-soft: rgba(0, 0, 0, 0.08);
+
+  /* The single drop-shadow — reserved for product imagery. */
+  --apple-product-shadow: 3px 5px 30px 0 rgba(0, 0, 0, 0.22);
+
+  /* shadcn token bridge — keeps generic ui/* components functional without
+     rewriting them. */
+  --background: var(--apple-canvas);
+  --foreground: var(--apple-ink);
+  --card: var(--apple-canvas);
+  --card-foreground: var(--apple-ink);
+  --popover: var(--apple-canvas);
+  --popover-foreground: var(--apple-ink);
+  --primary: var(--apple-primary);
+  --primary-foreground: var(--apple-on-dark);
+  --secondary: var(--apple-parchment);
+  --secondary-foreground: var(--apple-ink);
+  --muted: var(--apple-parchment);
+  --muted-foreground: var(--apple-ink-muted-48);
+  --accent: var(--apple-parchment);
+  --accent-foreground: var(--apple-ink);
+  --tertiary: var(--apple-ink);
+  --highlight: var(--apple-primary-focus);
+  --destructive: #e30613;
+  --destructive-foreground: var(--apple-on-dark);
+  --border: var(--apple-hairline);
+  --input: var(--apple-hairline);
+  --ring: var(--apple-primary-focus);
+  --chart-1: var(--apple-primary);
+  --chart-2: var(--apple-primary-focus);
+  --chart-3: var(--apple-primary-on-dark);
+  --chart-4: var(--apple-ink-muted-48);
+  --chart-5: var(--apple-ink);
+
+  --radius-xs: 5px;
+  --radius-sm: 8px;
+  --radius-md: 11px;
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
+  --radius: 0.5rem;
+
+  --sidebar: var(--apple-canvas);
+  --sidebar-foreground: var(--apple-ink);
+  --sidebar-primary: var(--apple-primary);
+  --sidebar-primary-foreground: var(--apple-on-dark);
+  --sidebar-accent: var(--apple-parchment);
+  --sidebar-accent-foreground: var(--apple-ink);
+  --sidebar-border: var(--apple-hairline);
+  --sidebar-ring: var(--apple-primary-focus);
 }
 
+/* Dark mode = used on `.tile-dark` sections, not globally. Reverses
+   ink/canvas mapping so shadcn UI on dark tiles still reads correctly. */
 .dark {
-  /* Monochromatic dark blue — like the original, with slightly more depth */
-  --background: oklch(0.14 0.04 245);
-  --foreground: oklch(0.97 0.02 220);
-  --card: oklch(0.19 0.05 245);
-  --card-foreground: oklch(0.97 0.02 220);
-  --popover: oklch(0.16 0.045 245);
-  --popover-foreground: oklch(0.97 0.02 220);
-  --primary: oklch(0.78 0.18 220);
-  --primary-foreground: oklch(0.14 0.04 245);
-  --secondary: oklch(0.23 0.05 245);
-  --secondary-foreground: oklch(0.97 0.02 220);
-  --muted: oklch(0.23 0.05 245);
-  --muted-foreground: oklch(0.78 0.04 230);
-  --accent: oklch(0.85 0.13 210);
-  --accent-foreground: oklch(0.14 0.04 245);
-  --tertiary: oklch(0.62 0.20 240);
-  --highlight: oklch(0.90 0.10 215);
-  --destructive: oklch(0.65 0.22 20);
-  --destructive-foreground: oklch(0.97 0.02 220);
-  --border: oklch(0.42 0.07 230 / 0.45);
-  --input: oklch(0.28 0.05 245);
-  --ring: oklch(0.78 0.18 220);
-  --chart-1: oklch(0.78 0.18 220);
-  --chart-2: oklch(0.65 0.20 235);
-  --chart-3: oklch(0.55 0.18 245);
-  --chart-4: oklch(0.85 0.12 215);
-  --chart-5: oklch(0.45 0.16 250);
-  --sidebar: oklch(0.16 0.045 245);
-  --sidebar-foreground: oklch(0.97 0.02 220);
-  --sidebar-primary: oklch(0.78 0.18 220);
-  --sidebar-primary-foreground: oklch(0.14 0.04 245);
-  --sidebar-accent: oklch(0.23 0.05 245);
-  --sidebar-accent-foreground: oklch(0.97 0.02 220);
-  --sidebar-border: oklch(0.42 0.07 230 / 0.45);
-  --sidebar-ring: oklch(0.78 0.18 220);
+  --background: var(--apple-tile-1);
+  --foreground: var(--apple-on-dark);
+  --card: var(--apple-tile-2);
+  --card-foreground: var(--apple-on-dark);
+  --popover: var(--apple-tile-2);
+  --popover-foreground: var(--apple-on-dark);
+  --primary: var(--apple-primary-on-dark);
+  --primary-foreground: var(--apple-on-dark);
+  --secondary: var(--apple-tile-2);
+  --secondary-foreground: var(--apple-on-dark);
+  --muted: var(--apple-tile-3);
+  --muted-foreground: var(--apple-on-dark-muted);
+  --accent: var(--apple-tile-2);
+  --accent-foreground: var(--apple-on-dark);
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: var(--apple-primary-on-dark);
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  /* SF Pro is system-only; Inter is the spec-recommended substitute.
+     system-ui resolves to real SF Pro on Apple platforms. */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', sans-serif;
+  --font-display: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', monospace;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -108,11 +138,7 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 10px);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -124,182 +150,383 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+  * { @apply border-border outline-ring/50; }
+  /* Strip the browser-default focus ring on all interactive controls — the
+     base `* { outline-ring/50 }` rule from shadcn sets the color, and click-
+     triggered focus on buttons would otherwise show a colored halo. Custom
+     focus indicators per-component instead. */
+  button, [role="button"], a, input, textarea, select {
+    outline: none;
   }
-  html, body {
-    /* `clip` doesn't create a scroll container -> avoids the double scrollbar */
-    overflow-x: clip;
+  button:focus, button:focus-visible,
+  [role="button"]:focus, [role="button"]:focus-visible {
+    outline: none;
   }
-  html { height: 100%; }
+  html, body { overflow-x: clip; }
+  html {
+    height: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
   body {
-    @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(60% 80% at 12% 8%, oklch(0.78 0.18 220 / 0.18), transparent 60%),
-      radial-gradient(50% 70% at 88% 22%, oklch(0.65 0.20 235 / 0.16), transparent 60%),
-      radial-gradient(70% 60% at 50% 100%, oklch(0.55 0.18 245 / 0.14), transparent 60%);
-    background-attachment: fixed;
+    background: var(--apple-canvas);
+    color: var(--apple-ink);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.47;
+    letter-spacing: -0.022em;
     min-height: 100vh;
   }
+  ::selection {
+    background: var(--apple-primary);
+    color: var(--apple-on-dark);
+  }
 }
 
-html {
-  scroll-behavior: smooth;
+html { scroll-behavior: smooth; }
+
+/* ───── Typography utilities — direct mapping from the spec hierarchy. */
+
+.type-hero-display {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 6vw, 80px);
+  font-weight: 600;
+  line-height: 1.07;
+  letter-spacing: -0.015em;
+}
+.type-display-lg {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.type-display-md {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.012em;
+}
+.type-lead {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 400;
+  line-height: 1.21;
+  letter-spacing: 0.007em;
+}
+.type-lead-airy {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 1.8vw, 24px);
+  font-weight: 300;
+  line-height: 1.5;
+}
+.type-tagline {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.19;
+  letter-spacing: 0.011em;
+}
+.type-body-strong {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.24;
+  letter-spacing: -0.022em;
+}
+.type-body-apple {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.022em;
+}
+.type-caption {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.016em;
+}
+.type-caption-strong {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.29;
+  letter-spacing: -0.016em;
+}
+.type-nav-link {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.type-fine-print {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+.type-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-/* ───── Cool blue UI utilities ───── */
+/* ───── Surface utilities — alternate light/dark tiles. */
 
-.glass {
-  background: linear-gradient(
-    135deg,
-    color-mix(in oklab, var(--foreground) 6%, transparent),
-    color-mix(in oklab, var(--foreground) 1%, transparent)
-  );
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid color-mix(in oklab, var(--primary) 18%, transparent);
-}
+.tile-light { background: var(--apple-canvas); color: var(--apple-ink); }
+.tile-parchment { background: var(--apple-parchment); color: var(--apple-ink); }
+.tile-pearl { background: var(--apple-pearl); color: var(--apple-ink); }
+.tile-dark { background: var(--apple-tile-1); color: var(--apple-on-dark); }
+.tile-dark-2 { background: var(--apple-tile-2); color: var(--apple-on-dark); }
+.tile-dark-3 { background: var(--apple-tile-3); color: var(--apple-on-dark); }
 
-.glass-strong {
-  background: color-mix(in oklab, var(--card) 60%, transparent);
-  backdrop-filter: blur(28px) saturate(170%);
-  -webkit-backdrop-filter: blur(28px) saturate(170%);
-  border: 1px solid color-mix(in oklab, var(--primary) 22%, transparent);
-}
+/* ───── Buttons — pill primary, ghost pill, utility, icon. */
 
-.neon-border {
-  position: relative;
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 22px;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.022em;
+  background: var(--apple-primary);
+  color: var(--apple-on-dark);
+  border-radius: var(--radius-pill);
+  border: 0;
+  cursor: pointer;
+  outline: none !important;
+  box-shadow: none !important;
+  /* Promote to its own compositor layer — kills the sub-pixel "white line"
+     artifact that appears at zoom ≤ 100% when the parent (white card) bleeds
+     between the button's rendered edge and its background fill. */
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+  transition: transform 0.15s ease, background 0.15s ease;
 }
-.neon-border::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    135deg,
-    oklch(0.85 0.13 210 / 0.85),
-    oklch(0.78 0.18 220 / 0.55),
-    oklch(0.62 0.20 240 / 0.7),
-    oklch(0.45 0.16 250 / 0.55)
-  );
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  pointer-events: none;
-}
+.btn-pill:hover { background: var(--apple-primary-focus); }
+.btn-pill:active { transform: scale(0.96); }
+/* All focus / focus-visible states are explicitly stripped — no halo, no
+   outline, no box-shadow under any pseudo-class. User-requested clean look. */
+.btn-pill:focus,
+.btn-pill:focus-visible,
+.btn-pill:focus-within { outline: none !important; box-shadow: none !important; }
 
-.neon-glow {
-  box-shadow:
-    0 0 20px oklch(0.78 0.18 220 / 0.32),
-    0 0 60px oklch(0.55 0.18 245 / 0.18);
+.btn-pill-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 22px;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.022em;
+  background: transparent;
+  color: var(--apple-primary);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--apple-primary);
+  cursor: pointer;
+  outline: none !important;
+  box-shadow: none !important;
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
+.btn-pill-ghost:hover { background: var(--apple-primary); color: var(--apple-on-dark); }
+.btn-pill-ghost:active { transform: scale(0.96); }
+.btn-pill-ghost:focus,
+.btn-pill-ghost:focus-visible,
+.btn-pill-ghost:focus-within { outline: none !important; box-shadow: none !important; }
 
-.text-anime {
-  background: linear-gradient(
-    100deg,
-    oklch(0.97 0.05 220) 0%,
-    oklch(0.85 0.13 210) 35%,
-    oklch(0.78 0.18 220) 65%,
-    oklch(0.55 0.18 245) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 0 18px oklch(0.78 0.18 220 / 0.40));
+.tile-dark .btn-pill-ghost,
+.tile-dark-2 .btn-pill-ghost,
+.tile-dark-3 .btn-pill-ghost {
+  color: var(--apple-primary-on-dark);
+  border-color: var(--apple-primary-on-dark);
 }
-
-.text-stroke {
-  -webkit-text-stroke: 1px oklch(0.78 0.18 220 / 0.6);
-  text-shadow: 0 0 24px oklch(0.78 0.18 220 / 0.35);
-}
-
-.aurora {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(40% 60% at 18% 28%, oklch(0.78 0.18 220 / 0.42), transparent 70%),
-    radial-gradient(35% 55% at 82% 18%, oklch(0.65 0.20 235 / 0.36), transparent 70%),
-    radial-gradient(45% 60% at 60% 92%, oklch(0.55 0.18 245 / 0.30), transparent 70%);
-  filter: blur(50px);
-}
-
-.scanlines::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: repeating-linear-gradient(
-    180deg,
-    transparent 0px,
-    transparent 2px,
-    oklch(0.78 0.18 220 / 0.04) 2px,
-    oklch(0.78 0.18 220 / 0.04) 3px
-  );
-  mix-blend-mode: overlay;
+.tile-dark .btn-pill-ghost:hover,
+.tile-dark-2 .btn-pill-ghost:hover,
+.tile-dark-3 .btn-pill-ghost:hover {
+  background: var(--apple-primary-on-dark);
+  color: var(--apple-tile-1);
 }
 
-.grid-bg {
-  background-image:
-    linear-gradient(oklch(0.78 0.18 220 / 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(0.78 0.18 220 / 0.08) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 70% 50% at 50% 30%, #000 30%, transparent 80%);
+.btn-dark-utility {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.29;
+  letter-spacing: -0.016em;
+  background: var(--apple-ink);
+  color: var(--apple-on-dark);
+  border-radius: var(--radius-sm);
+  border: 0;
+  cursor: pointer;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.btn-dark-utility:hover { background: #000; }
+.btn-dark-utility:active { transform: scale(0.96); }
+.btn-dark-utility:focus,
+.btn-dark-utility:focus-visible,
+.btn-dark-utility:focus-within { outline: none !important; box-shadow: none !important; }
+
+.btn-icon-circular {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--apple-chip-translucent);
+  color: var(--apple-ink);
+  border-radius: 9999px;
+  border: 0;
+  cursor: pointer;
+  outline: none !important;
+  box-shadow: none !important;
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.btn-icon-circular:hover { background: rgba(210, 210, 215, 0.85); }
+.btn-icon-circular:active { transform: scale(0.96); }
+.btn-icon-circular:focus,
+.btn-icon-circular:focus-visible,
+.btn-icon-circular:focus-within { outline: none !important; box-shadow: none !important; }
+
+.text-link-apple {
+  color: var(--apple-primary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.15s ease;
+}
+.text-link-apple:hover { text-decoration: underline; }
+.tile-dark .text-link-apple,
+.tile-dark-2 .text-link-apple,
+.tile-dark-3 .text-link-apple { color: var(--apple-primary-on-dark); }
+
+/* ───── Cards — hairline border, no shadow on the card itself. */
+
+.card-utility {
+  background: var(--apple-canvas);
+  color: var(--apple-ink);
+  border: 1px solid var(--apple-hairline);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.card-utility:hover { border-color: var(--apple-ink-muted-48); }
+.tile-dark .card-utility,
+.tile-dark-2 .card-utility,
+.tile-dark-3 .card-utility {
+  background: var(--apple-tile-2);
+  color: var(--apple-on-dark);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.tile-dark .card-utility:hover,
+.tile-dark-2 .card-utility:hover,
+.tile-dark-3 .card-utility:hover {
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
-.grain::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.05;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+.product-shadow {
+  filter: drop-shadow(var(--apple-product-shadow));
 }
 
-@keyframes float-soft {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
+/* ───── Sub-nav frosted strip — parchment 80% with backdrop blur. */
+
+.nav-frosted {
+  background: color-mix(in srgb, var(--apple-parchment) 80%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
 }
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px oklch(0.78 0.18 220 / 0.32), 0 0 60px oklch(0.55 0.18 245 / 0.18); }
-  50%      { box-shadow: 0 0 30px oklch(0.78 0.18 220 / 0.55), 0 0 90px oklch(0.55 0.18 245 / 0.35); }
+.nav-frosted-dark {
+  background: color-mix(in srgb, var(--apple-tile-1) 72%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
 }
-@keyframes shimmer-x {
-  0%   { background-position: -200% 50%; }
-  100% { background-position:  200% 50%; }
-}
-@keyframes spin-slow { to { transform: rotate(360deg); } }
-@keyframes aurora-shift {
-  0%, 100% { transform: translate3d(0,0,0) scale(1); }
-  50%      { transform: translate3d(2%, -2%, 0) scale(1.05); }
-}
-@keyframes ticker {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+.nav-global-black {
+  background: var(--apple-black);
+  color: var(--apple-on-dark);
 }
 
-.animate-float-soft   { animation: float-soft 6s ease-in-out infinite; }
-.animate-pulse-glow   { animation: pulse-glow 3s ease-in-out infinite; }
-.animate-aurora       { animation: aurora-shift 20s ease-in-out infinite; }
-.animate-spin-slow    { animation: spin-slow 18s linear infinite; }
-.animate-ticker       { animation: ticker 30s linear infinite; }
+/* ───── Hide scrollbar — page still scrolls. */
 
-/* Hide the scrollbar entirely — page still scrolls via wheel / touch / keys */
-html, body {
-  scrollbar-width: none;        /* Firefox */
-  -ms-overflow-style: none;     /* IE & old Edge */
-}
+html, body { scrollbar-width: none; -ms-overflow-style: none; }
 html::-webkit-scrollbar,
 body::-webkit-scrollbar,
 *::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;                /* Chrome / Safari / new Edge */
+  width: 0; height: 0; display: none;
 }
 
-::selection {
-  background: oklch(0.78 0.18 220 / 0.4);
-  color: oklch(0.99 0.005 240);
+/* ───── Minimal motion — Apple uses subtle reveals only. */
+
+@keyframes apple-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-apple-fade-up { animation: apple-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* ───── Final defense — kill every possible source of a button halo.
+   Placed at end of file so source order gives this highest precedence over
+   any leaked Tailwind utility, shadcn cva, or browser default. */
+
+button,
+[type="button"],
+[type="submit"],
+[type="reset"],
+.btn-pill,
+.btn-pill-ghost,
+.btn-dark-utility,
+.btn-icon-circular {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:hover,
+button:focus,
+button:focus-visible,
+button:focus-within,
+button:active,
+[type="button"]:hover,
+[type="button"]:focus,
+[type="button"]:focus-visible,
+[type="submit"]:hover,
+[type="submit"]:focus,
+[type="submit"]:focus-visible,
+.btn-pill:hover,
+.btn-pill:focus,
+.btn-pill:focus-visible,
+.btn-pill:focus-within,
+.btn-pill:active,
+.btn-pill-ghost:hover,
+.btn-pill-ghost:focus,
+.btn-pill-ghost:focus-visible,
+.btn-dark-utility:hover,
+.btn-dark-utility:focus,
+.btn-dark-utility:focus-visible,
+.btn-icon-circular:hover,
+.btn-icon-circular:focus,
+.btn-icon-circular:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
 }

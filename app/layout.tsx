@@ -1,16 +1,22 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Inter, JetBrains_Mono } from "next/font/google"
 import "../styles/globals.css" // Changed to match local style path preference
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Inter is the spec-recommended substitute for SF Pro (Apple proprietary).
+// Loading 300/400/600 to match the Apple type ladder (no 500 — deliberately
+// absent in the Apple system).
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  weight: ["300", "400", "600", "700"],
+  display: "swap",
 })
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
+  display: "swap",
 })
 
 export const metadata: Metadata = {
@@ -27,7 +33,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#1a1830",
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
 }
@@ -38,8 +44,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth">
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-background selection:bg-primary/40 selection:text-foreground`}>
+    <html lang="en" className="scroll-smooth">
+      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         {children}
       </body>
     </html>
