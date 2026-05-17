@@ -6,7 +6,7 @@ import { Float, useGLTF } from "@react-three/drei"
 import * as THREE from "three"
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js"
 import { VRMLoaderPlugin, VRMUtils, type VRM } from "@pixiv/three-vrm"
-import { retargetFbxToVrm } from "@/lib/load-vrm-animation"
+import { retargetFbxToVrm, LEG_BONES } from "@/lib/load-vrm-animation"
 
 // 1×1 transparent PNG. Used to short-circuit texture fetches inside animation
 // FBXs that embed absolute Windows paths (e.g. C:\Users\...\character.fbm\*).
@@ -67,6 +67,10 @@ type CharacterProps = {
   /** Optional FBX (Mixamo-style) animation to retarget onto the VRM
       humanoid skeleton. Plays on a loop. */
   animationUrl?: string
+  /** Skip leg-bone tracks during retargeting — legs keep the VRM rest pose
+      (straight, symmetric). Use when the FBX animation has weight-shift /
+      contrapposto baked in and you want planted feet instead. */
+  lockLegs?: boolean
   /** Force the chibi (skip GLTF loading entirely). */
   forceChibi?: boolean
   /** Skip the chibi fallback. While the GLTF/VRM is loading or on
@@ -274,16 +278,20 @@ function VrmAnimationDriver({
   vrm,
   url,
   mixerRef,
+  lockLegs,
 }: {
   vrm: VRM
   url: string
   mixerRef: React.RefObject<THREE.AnimationMixer | null>
+  lockLegs?: boolean
 }) {
   const fbx = useAnimationFBX(url)
 
   useEffect(() => {
     if (!fbx) return
-    const clip = retargetFbxToVrm(fbx, vrm)
+    const clip = retargetFbxToVrm(fbx, vrm, {
+      excludeBones: lockLegs ? LEG_BONES : undefined,
+    })
     if (!clip) {
       console.warn(
         `[AnimeCharacter] FBX at ${url} produced no retargeted tracks — bone names may not match Mixamo or VRM humanoid conventions.`,
@@ -302,7 +310,7 @@ function VrmAnimationDriver({
       mixer.uncacheClip(clip)
       mixerRef.current = null
     }
-  }, [fbx, vrm, url, mixerRef])
+  }, [fbx, vrm, url, mixerRef, lockLegs])
 
   return null
 }
@@ -315,6 +323,7 @@ function GltfCharacter({
   scale = 1.4,
   pose = "idle",
   animationUrl,
+  lockLegs,
 }: { url: string } & CharacterProps) {
   const wrapperRef = useRef<THREE.Group>(null)
   const innerRef = useRef<THREE.Group>(null)
@@ -444,7 +453,12 @@ function GltfCharacter({
         <group ref={innerRef}>
           <primitive object={sceneToRender} />
           {vrm && animationUrl && (
-            <VrmAnimationDriver vrm={vrm} url={animationUrl} mixerRef={mixerRef} />
+            <VrmAnimationDriver
+              vrm={vrm}
+              url={animationUrl}
+              mixerRef={mixerRef}
+              lockLegs={lockLegs}
+            />
           )}
         </group>
       </group>
@@ -684,6 +698,7 @@ export function AnimeCharacter({
   model,
   pose,
   animationUrl,
+  lockLegs,
   forceChibi,
   noFallback,
 }: CharacterProps = {}) {
@@ -730,6 +745,7 @@ export function AnimeCharacter({
             scale={scale}
             pose={pose}
             animationUrl={animationUrl}
+            lockLegs={lockLegs}
           />
         </Suspense>
       </ModelErrorBoundary>

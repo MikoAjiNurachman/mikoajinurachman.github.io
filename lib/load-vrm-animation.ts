@@ -127,6 +127,23 @@ function findSourceHips(asset: THREE.Group): THREE.Object3D | null {
   return found
 }
 
+// Lower-body bones — skipping these during retarget leaves the legs in the
+// VRM's rest pose (straight, symmetric stance), while the upper body still
+// animates from the FBX clip. Useful when an animation has contrapposto /
+// weight-shift baked in but the visual context (a portfolio standing shot)
+// reads cleaner with planted feet.
+export const LEG_BONES: VRMHumanBoneName[] = [
+  "leftUpperLeg", "leftLowerLeg", "leftFoot", "leftToes",
+  "rightUpperLeg", "rightLowerLeg", "rightFoot", "rightToes",
+]
+
+type RetargetOptions = {
+  /** Skip these VRM humanoid bones during retargeting — they keep their
+      rest-pose rotation. Hip-translation track is also dropped if hips are
+      excluded to keep the character planted. */
+  excludeBones?: ReadonlySet<VRMHumanBoneName> | readonly VRMHumanBoneName[]
+}
+
 /**
  * Retarget animations from an FBX humanoid clip onto a VRM humanoid skeleton.
  *
@@ -141,7 +158,9 @@ function findSourceHips(asset: THREE.Group): THREE.Object3D | null {
 export function retargetFbxToVrm(
   asset: THREE.Group,
   vrm: VRM,
+  options: RetargetOptions = {},
 ): THREE.AnimationClip | null {
+  const exclude = new Set<VRMHumanBoneName>(options.excludeBones ?? [])
   const sourceClip = asset.animations[0]
   if (!sourceClip) {
     console.warn("[retargetFbxToVrm] FBX has no animation clips")
@@ -173,6 +192,8 @@ export function retargetFbxToVrm(
 
     const vrmBoneName = resolveVrmBoneName(rawName)
     if (!vrmBoneName) continue
+    // Locked bones — keep VRM rest pose, skip the FBX track entirely.
+    if (exclude.has(vrmBoneName)) continue
 
     const vrmBoneNode = vrm.humanoid?.getNormalizedBoneNode(vrmBoneName)
     if (!vrmBoneNode) continue

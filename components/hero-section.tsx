@@ -35,9 +35,11 @@ function HeroScene() {
   const charScale = THREE.MathUtils.clamp(viewport.width * 0.11, 0.32, 1.1)
   const lateralBuffer = charScale * 1.0 + 0.2
   const charX = Math.max(0.6, Math.min(halfW - lateralBuffer, 3.8))
+  // Lifted up so characters sit roughly mid-viewport (visible on first load)
+  // instead of anchored to the canvas bottom edge.
   const charY = THREE.MathUtils.lerp(
-    -2.0,
-    -1.6,
+    -1.4,
+    -1.0,
     THREE.MathUtils.smoothstep(viewport.width, 5, 9),
   )
 
@@ -62,6 +64,7 @@ function HeroScene() {
         position={[charX, charY, 0]}
         rotation={[-0.25, -0.3, 0]}
         scale={charScale}
+        lockLegs
         noFallback
       />
     </>
@@ -72,11 +75,28 @@ export function HeroSection() {
   return (
     <section
       id="home"
-      className="tile-light relative w-full flex flex-col items-center pt-24 md:pt-28 pb-0 overflow-hidden"
+      className="tile-light relative w-full min-h-screen overflow-hidden flex flex-col items-center justify-center pt-16"
     >
-      {/* Headline stack — Apple centered hero: eyebrow, name, tagline, CTAs. */}
+      {/* 3D character canvas — full-bleed background. Characters flank the
+          centered text at world x = ±3.x. Both are visible above the fold on
+          initial page load, no scroll required. */}
       <motion.div
-        className="relative z-10 text-center px-6 max-w-[980px] mx-auto pt-12 md:pt-20 pb-10 md:pb-14"
+        className="absolute inset-0 z-0"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.0, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Canvas camera={{ position: [0, 0, 6], fov: 45 }} dpr={[1, 1.6]}>
+          <Suspense fallback={null}>
+            <HeroScene />
+          </Suspense>
+        </Canvas>
+      </motion.div>
+
+      {/* Headline stack — overlaid on top of the canvas. Apple centered hero:
+          eyebrow, name, tagline, CTAs. */}
+      <motion.div
+        className="relative z-10 text-center px-6 max-w-[980px] mx-auto pointer-events-none"
         variants={stagger}
         initial="hidden"
         animate="visible"
@@ -97,41 +117,23 @@ export function HeroSection() {
           Six years shipping mission-critical infrastructure.
         </motion.p>
 
-        <motion.div variants={fadeUp} className="flex flex-wrap items-center justify-center gap-3">
+        <motion.div variants={fadeUp} className="flex flex-wrap items-center justify-center gap-3 pointer-events-auto">
           <a href="#experience" className="btn-pill">See journey</a>
           <a href="#contact" className="btn-pill-ghost">Get in touch ›</a>
         </motion.div>
       </motion.div>
 
-      {/* 3D character "render" — the spec reserves the product shadow for
-          imagery; here the characters are the photographic subject. The Canvas
-          fills the lower band of the hero so the headline keeps its breathing
-          room above. Bumped heights so the bigger character has room. */}
-      <motion.div
-        className="relative w-full h-[480px] md:h-[600px] lg:h-[700px]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.0, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <Canvas camera={{ position: [0, 0, 6], fov: 45 }} dpr={[1, 1.6]}>
-          <Suspense fallback={null}>
-            <HeroScene />
-          </Suspense>
-        </Canvas>
-
-        {/* Soft bottom edge into the next tile — no gradient, just a thin
-            hairline. The next section's parchment provides the contrast. */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-[var(--apple-hairline)]" />
-      </motion.div>
-
-      {/* Quiet "scroll" hint, Apple style — small chevron, no animation drama. */}
+      {/* Quiet "scroll" hint, Apple style — small chevron, no drama. */}
       <a
         href="#about"
-        className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[var(--apple-ink-muted-48)] hover:text-[var(--apple-primary)] transition-colors"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 text-[var(--apple-ink-muted-48)] hover:text-[var(--apple-primary)] transition-colors"
         aria-label="Scroll to about"
       >
         <ChevronDown size={18} strokeWidth={1.5} />
       </a>
+
+      {/* Hairline divider into the next tile. */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-[var(--apple-hairline)] z-10" />
     </section>
   )
 }
