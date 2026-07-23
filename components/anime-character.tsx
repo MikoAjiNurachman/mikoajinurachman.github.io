@@ -1,5 +1,7 @@
 "use client"
 
+/* eslint-disable react-hooks/immutability -- Three.js and VRM expose mutable scene-graph objects that must be updated per frame. */
+
 import React, { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import { useFrame, useLoader } from "@react-three/fiber"
 import { Float, useGLTF } from "@react-three/drei"
@@ -13,6 +15,18 @@ import { retargetFbxToVrm, LEG_BONES } from "@/lib/load-vrm-animation"
 // We only want the FBX's AnimationClip; meshes/materials get discarded.
 const TRANSPARENT_PIXEL =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgAAIAAAUAAarVyFEAAAAASUVORK5CYII="
+
+const SILENCED_EXPRESSION_NAMES = new Set([
+  "aa", "ih", "ou", "ee", "oh", "neutral",
+  "happy", "angry", "sad", "relaxed", "surprised",
+])
+const MOUTH_BONE_HINTS = ["jaw", "mouth", "lip", "teeth", "tongue"]
+
+type MutableVrmExpression = {
+  expressionName?: string
+  name?: string
+  weight?: number
+}
 
 // Custom FBX hook that suppresses any embedded absolute / .fbm texture refs
 // before they hit the network. Returns a Suspense-suspending Group like useFBX.
@@ -342,6 +356,38 @@ function GltfCharacter({
 
   const vrm = gltf.userData?.vrm as VRM | undefined
 
+  // The scene structure is static after loading. Cache mutable targets once
+  // instead of traversing every mesh and bone on every rendered frame.
+  const silencedExpressions = useMemo(() => {
+    const expressions = vrm?.expressionManager?.expressions ?? []
+    return expressions.flatMap((expression) => {
+      const mutable = expression as MutableVrmExpression
+      const name = mutable.expressionName ?? mutable.name
+      return name && SILENCED_EXPRESSION_NAMES.has(name)
+        ? [{ expression: mutable, name }]
+        : []
+    })
+  }, [vrm])
+
+  const silencedSceneTargets = useMemo(() => {
+    const morphTargets: number[][] = []
+    const mouthBones: THREE.Object3D[] = []
+
+    vrm?.scene.traverse((object) => {
+      const mesh = object as THREE.SkinnedMesh
+      if (mesh.morphTargetInfluences?.length) {
+        morphTargets.push(mesh.morphTargetInfluences)
+      }
+
+      const name = object.name.toLowerCase()
+      if (name && MOUTH_BONE_HINTS.some((hint) => name.includes(hint))) {
+        mouthBones.push(object)
+      }
+    })
+
+    return { morphTargets, mouthBones }
+  }, [vrm])
+
   // One-time scene optimizations + the chosen pose
   useEffect(() => {
     if (!vrm) return
@@ -399,43 +445,16 @@ function GltfCharacter({
       // Kill every mouth viseme + emotion — leave blink alone so eyes
       // can still blink. Set BOTH via API and direct .weight, in case
       // one path is overridden.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const mouthShapes = new Set<string>([
-        "aa", "ih", "ou", "ee", "oh", "neutral",
-        "happy", "angry", "sad", "relaxed", "surprised",
-      ])
-      for (const expr of em.expressions) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const e = expr as any
-        const name = e.expressionName ?? e.name
-        if (mouthShapes.has(name)) {
-          try { em.setValue(name, 0) } catch { /* ignore */ }
-          if ("weight" in e) e.weight = 0
-        }
+      for (const { expression, name } of silencedExpressions) {
+        try { em.setValue(name, 0) } catch { /* ignore */ }
+        if ("weight" in expression) expression.weight = 0
       }
       em.update()
     }
 
-    // Aggressive: zero ALL morph target influences on every mesh + freeze
-    // any non-humanoid bone whose name suggests jaw / mouth / lip / teeth
-    // (skeletal mouth animation isn't covered by morphs).
-    vrm.scene.traverse((obj) => {
-      const mesh = obj as THREE.SkinnedMesh
-      if (mesh.morphTargetInfluences && mesh.morphTargetInfluences.length) {
-        mesh.morphTargetInfluences.fill(0)
-      }
-      const lower = (obj.name || "").toLowerCase()
-      if (
-        obj.name &&
-        (lower.includes("jaw") ||
-          lower.includes("mouth") ||
-          lower.includes("lip") ||
-          lower.includes("teeth") ||
-          lower.includes("tongue"))
-      ) {
-        obj.rotation.set(0, 0, 0)
-      }
-    })
+    // Keep all mouth-related morphs and bones frozen without a scene traversal.
+    for (const influences of silencedSceneTargets.morphTargets) influences.fill(0)
+    for (const bone of silencedSceneTargets.mouthBones) bone.rotation.set(0, 0, 0)
 
   })
 
@@ -705,10 +724,7 @@ export function AnimeCharacter({
   const [modelUrl, setModelUrl] = useState<string | null | undefined>(undefined)
 
   useEffect(() => {
-    if (forceChibi) {
-      setModelUrl(null)
-      return
-    }
+    if (forceChibi) return
     let cancelled = false
     const candidates = model ? [model] : DEFAULT_CANDIDATES
     ;(async () => {
@@ -734,7 +750,7 @@ export function AnimeCharacter({
   // Render nothing while waiting if noFallback — avoids chibi flash.
   const fallback = noFallback ? null : <ChibiCharacter position={position} scale={scale} />
 
-  if (modelUrl) {
+  if (!forceChibi && modelUrl) {
     return (
       <ModelErrorBoundary fallback={fallback} onError={() => setModelUrl(null)}>
         <Suspense fallback={fallback}>

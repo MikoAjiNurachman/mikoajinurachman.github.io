@@ -41,3 +41,7 @@ next-env.d.ts
 
 character.temp*
 character.vrm.texture*
+
+graphify-out/
+.hermes/
+*.md

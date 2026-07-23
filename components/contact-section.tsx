@@ -76,7 +76,7 @@ export function ContactSection() {
             Contact · 06
           </p>
           <h2 className="type-display-lg text-[var(--apple-ink)] mb-5">
-            Let's connect.
+            Let&apos;s connect.
           </h2>
           <p className="type-lead-airy text-[var(--apple-ink-muted-80)]">
             Open to new opportunities, technical collaborations, or a virtual coffee
@@ -203,7 +203,7 @@ export function ContactSection() {
                 {submitStatus === "success" ? (
                   <>
                     <CheckCircle className="w-5 h-5 shrink-0" />
-                    Message sent — I'll get back to you as soon as possible.
+                    Message sent — I&apos;ll get back to you as soon as possible.
                   </>
                 ) : (
                   <>

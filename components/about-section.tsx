@@ -1,7 +1,7 @@
 "use client"
 
 import { Canvas, useThree } from "@react-three/fiber"
-import { Suspense } from "react"
+import { Suspense, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 import { motion } from "framer-motion"
 import { AnimeCharacter } from "@/components/anime-character"
@@ -48,6 +48,26 @@ function AboutScene() {
 
 // Apple parchment tile — two-column on desktop, stacks on mobile.
 export function AboutSection() {
+  const canvasRef = useRef<HTMLDivElement>(null)
+  const [canvasIsVisible, setCanvasIsVisible] = useState(false)
+  const [canvasHasMounted, setCanvasHasMounted] = useState(false)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setCanvasIsVisible(entry.isIntersecting)
+        if (entry.isIntersecting) setCanvasHasMounted(true)
+      },
+      { threshold: 0.1 },
+    )
+
+    observer.observe(canvas)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <section
       id="about"
@@ -64,14 +84,21 @@ export function AboutSection() {
           {/* 3D — bare canvas, no decorative frame. Heights bumped so the
               bigger model has room without clipping. */}
           <motion.div
+            ref={canvasRef}
             variants={fadeUp}
             className="h-[480px] sm:h-[560px] lg:h-[680px] relative order-2 lg:order-1"
           >
-            <Canvas camera={{ position: [0, 0, 5] }} dpr={[1, 1.6]}>
-              <Suspense fallback={null}>
-                <AboutScene />
-              </Suspense>
-            </Canvas>
+            {canvasHasMounted && (
+              <Canvas
+                camera={{ position: [0, 0, 5] }}
+                dpr={[1, 1.6]}
+                frameloop={canvasIsVisible ? "always" : "never"}
+              >
+                <Suspense fallback={null}>
+                  <AboutScene />
+                </Suspense>
+              </Canvas>
+            )}
           </motion.div>
 
           {/* Content — Apple hierarchy: eyebrow → display-lg → body → stats */}

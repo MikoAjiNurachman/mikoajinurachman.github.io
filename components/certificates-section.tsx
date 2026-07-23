@@ -2,6 +2,7 @@
 
 import { ArrowUpRight } from "lucide-react"
 import { motion } from "framer-motion"
+import Image from "next/image"
 
 const fadeUp = {
   hidden: { opacity: 0, y: 14 },
@@ -70,7 +71,7 @@ export function CertificatesSection() {
             Certificates and continuous learning.
           </h2>
           <p className="type-lead-airy text-[var(--apple-on-dark-muted)]">
-            Programs and platforms I've completed to stay sharp.
+            Programs and platforms I&apos;ve completed to stay sharp.
           </p>
         </motion.div>
 
@@ -84,9 +85,11 @@ export function CertificatesSection() {
             >
               {/* Image with the system's 8px radius (inner image radius). */}
               <div className="relative aspect-square w-full overflow-hidden rounded-[var(--radius-sm)] bg-black/40 mb-5">
-                <img
+                <Image
                   src={cert.image}
                   alt={cert.title}
+                  fill
+                  sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                 />
               </div>

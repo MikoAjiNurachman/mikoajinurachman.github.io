@@ -68,7 +68,7 @@ export function ProjectsSection() {
           </h2>
           <p className="type-lead-airy text-[var(--apple-ink-muted-80)]">
             Systems architecture, middleware integration, and frontend experiences.
-            Most are private enterprise — what's listed is the role and the stack.
+            Most are private enterprise — what&apos;s listed is the role and the stack.
           </p>
         </motion.div>
 

@@ -1,0 +1,4 @@
+# Keep incremental updates aligned with the code-only baseline.
+graphify-out/
+.hermes/
+*.md
